@@ -1,0 +1,49 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+const HeroSection = () => {
+    return (
+        <section className="relative h-screen overflow-hidden">
+            {/* Video Background */}
+            <video
+                className="absolute top-0 left-0 w-full h-full object-cover"
+                src="https://res.cloudinary.com/deoegf9on/video/upload/v1748370065/ffz_tcanid.mp4"
+                autoPlay
+                loop
+                muted
+                playsInline
+            />
+
+            {/* Overlay */}
+            <div className="absolute inset-0 bg-black bg-opacity-60"></div>
+
+            {/* Content */}
+            <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 sm:px-6 lg:px-8">
+                <h1 className="text-white text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
+                    Transform Your Body
+                    <br />
+                    <span className="text-orange-500">Elevate Your Fitness</span>
+                </h1>
+                <p className="mt-6 text-lg sm:text-xl text-gray-200 max-w-2xl mx-auto">
+                    Join Fly Fitness Zone today and embark on a journey to a healthier, stronger you.
+                </p>
+                <div className="mt-8 flex justify-center space-x-4">
+                    <Link
+                        to="/register"
+                        className="bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 px-6 rounded-md transition duration-300"
+                    >
+                        Join Now
+                    </Link>
+                    <Link
+                        to="/album"
+                        className="bg-white hover:bg-gray-100 text-orange-600 font-semibold py-3 px-6 rounded-md transition duration-300 flex items-center justify-center"
+                    >
+                        View Classes
+                    </Link>
+                </div>
+            </div>
+        </section>
+    );
+};
+
+export default HeroSection;
