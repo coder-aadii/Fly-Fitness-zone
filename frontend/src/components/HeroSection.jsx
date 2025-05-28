@@ -38,7 +38,7 @@ const HeroSection = () => {
                         to="/album"
                         className="bg-white hover:bg-gray-100 text-orange-600 font-semibold py-3 px-6 rounded-md transition duration-300 flex items-center justify-center"
                     >
-                        View Classes
+                        Know About Classes
                     </Link>
                 </div>
             </div>
