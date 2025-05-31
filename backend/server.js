@@ -26,8 +26,27 @@ const app = express();
 
 // Configure CORS
 app.use(cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
-    credentials: true
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl requests)
+        if(!origin) return callback(null, true);
+        
+        // Check if the origin is allowed
+        const allowedOrigins = [
+            'http://localhost:3000',
+            'https://flyfitnesszone.netlify.app',
+            process.env.CORS_ORIGIN
+        ].filter(Boolean); // Remove any undefined/null values
+        
+        if(allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV === 'development') {
+            callback(null, true);
+        } else {
+            logger.warn(`Origin ${origin} not allowed by CORS`);
+            callback(null, true); // Allow all origins in development
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 app.use(express.json());
@@ -38,6 +57,21 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Health check endpoint for monitoring
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
+});
+
+// Debug endpoint to check API configuration
+app.get('/api/debug', (req, res) => {
+    res.status(200).json({
+        status: 'ok',
+        environment: process.env.NODE_ENV,
+        cors: {
+            origin: process.env.CORS_ORIGIN || 'http://localhost:3000 (default)',
+        },
+        endpoints: {
+            auth: ['/register', '/login', '/verify-otp', '/forgot-password', '/reset-password'],
+            health: '/health'
+        }
+    });
 });
 
 app.use('/api/auth', authRoutes);
