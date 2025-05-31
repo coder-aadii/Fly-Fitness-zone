@@ -3,6 +3,7 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinaryUpload');
 
 // Get all posts (with pagination)
 exports.getPosts = async (req, res) => {
@@ -50,10 +51,20 @@ exports.createPost = async (req, res) => {
             content: content || ''
         };
 
-        // If there's a file uploaded, add it to the post
+        // If there's a file uploaded, upload it to Cloudinary
         if (req.file) {
-            postData.media = `/uploads/${req.file.filename}`;
-            postData.mediaType = req.file.mimetype.startsWith('image/') ? 'image' : 'video';
+            try {
+                // Upload to Cloudinary
+                const cloudinaryResult = await uploadToCloudinary(req.file.path);
+                
+                // Add Cloudinary data to post
+                postData.media = cloudinaryResult.url;
+                postData.cloudinaryId = cloudinaryResult.publicId;
+                postData.mediaType = cloudinaryResult.resourceType === 'image' ? 'image' : 'video';
+            } catch (uploadError) {
+                console.error('Error uploading to Cloudinary:', uploadError);
+                return res.status(500).json({ message: 'Error uploading media', error: uploadError.message });
+            }
         }
 
         // Create and save the post
@@ -166,8 +177,18 @@ exports.deletePost = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized to delete this post' });
         }
 
-        // If post has media, delete the file
-        if (post.media) {
+        // If post has media on Cloudinary, delete it
+        if (post.cloudinaryId) {
+            try {
+                const resourceType = post.mediaType === 'video' ? 'video' : 'image';
+                await deleteFromCloudinary(post.cloudinaryId, resourceType);
+            } catch (deleteError) {
+                console.error('Error deleting from Cloudinary:', deleteError);
+                // Continue with post deletion even if Cloudinary deletion fails
+            }
+        }
+        // For backward compatibility - if there's a local file, delete it
+        else if (post.media && post.media.startsWith('/uploads/')) {
             const mediaPath = path.join(__dirname, '..', post.media.replace(/^\//, ''));
             if (fs.existsSync(mediaPath)) {
                 fs.unlinkSync(mediaPath);
