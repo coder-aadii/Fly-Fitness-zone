@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ArrowLeft, ArrowRight, Download, Share2 } from 'lucide-react';
+import UserNavbar from '../components/dashboard/UserNavbar';
 
 const mediaItems = [
     { type: 'image', src: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748376266/449052580_321019774407387_4748102913008891394_n.heic_ghxfoc.jpg', alt: 'Image 1' },
@@ -14,8 +16,51 @@ const mediaItems = [
 ];
 
 const Album = () => {
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [modalIndex, setModalIndex] = useState(null);
     const [zoomed, setZoomed] = useState(false);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                // Check if token exists
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    // If no token, we still show the album but without user-specific features
+                    setLoading(false);
+                    return;
+                }
+
+                // Fetch user data from backend
+                const response = await fetch('http://localhost:5000/api/users/profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        // Unauthorized - token expired or invalid
+                        localStorage.removeItem('token');
+                        setLoading(false);
+                        return;
+                    }
+                    throw new Error('Failed to fetch user data');
+                }
+
+                const userData = await response.json();
+                setUser(userData);
+            } catch (err) {
+                console.error(err.message);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchUserData();
+    }, [navigate]);
 
     const closeModal = () => {
         setModalIndex(null);
@@ -56,41 +101,50 @@ const Album = () => {
         }
     };
 
-    return (
-        <div className="max-w-7xl mx-auto px-4 py-10" id="album">
-            <h2 className="text-3xl font-bold mb-8 text-center text-orange-600">Photo & Video Album</h2>
-            <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
-                {mediaItems.map((item, index) => (
-                    <div key={index} className="break-inside-avoid cursor-pointer" onClick={() => setModalIndex(index)}>
-                        {item.type === 'image' ? (
-                            <img src={item.src} alt={item.alt} className="w-full rounded-lg hover:opacity-90 transition" loading="lazy" />
-                        ) : (
-                            <video src={item.src} className="w-full rounded-lg" muted playsInline preload="metadata" />
-                        )}
-                    </div>
-                ))}
-            </div>
-
-            {modalIndex !== null && (
-                <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-                    <div className="absolute top-5 right-5 flex gap-4 z-50">
-                        <button onClick={closeModal}><X className="text-white w-8 h-8" /></button>
-                        <button onClick={() => setModalIndex((modalIndex - 1 + mediaItems.length) % mediaItems.length)}><ArrowLeft className="text-white w-8 h-8" /></button>
-                        <button onClick={() => setModalIndex((modalIndex + 1) % mediaItems.length)}><ArrowRight className="text-white w-8 h-8" /></button>
-                        <button onClick={() => downloadMedia(mediaItems[modalIndex].src)}><Download className="text-white w-8 h-8" /></button>
-                        <button onClick={() => shareMedia(mediaItems[modalIndex].src)}><Share2 className="text-white w-8 h-8" /></button>
-                    </div>
-
-                    <div onClick={() => setZoomed(!zoomed)} className={`max-w-full max-h-full overflow-hidden ${zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'} flex items-center justify-center`}>
-                        {mediaItems[modalIndex].type === 'image' ? (
-                            <img src={mediaItems[modalIndex].src} alt={mediaItems[modalIndex].alt} className={`transition duration-300 ${zoomed ? 'scale-150' : 'scale-100'} object-contain max-w-full max-h-screen`} />
-                        ) : (
-                            <video src={mediaItems[modalIndex].src} controls autoPlay className="object-contain max-w-full max-h-screen rounded-lg" />
-                        )}
-                    </div>
-                </div>
-            )}
+    if (loading) return (
+        <div className="flex justify-center items-center h-screen">
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
         </div>
+    );
+
+    return (
+        <>
+            {user && <UserNavbar user={user} />}
+            <div className="max-w-7xl mx-auto px-4 py-10" id="album">
+                <h2 className="text-3xl font-bold mb-8 text-center text-orange-600">Photo & Video Album</h2>
+                <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">
+                    {mediaItems.map((item, index) => (
+                        <div key={index} className="break-inside-avoid cursor-pointer" onClick={() => setModalIndex(index)}>
+                            {item.type === 'image' ? (
+                                <img src={item.src} alt={item.alt} className="w-full rounded-lg hover:opacity-90 transition" loading="lazy" />
+                            ) : (
+                                <video src={item.src} className="w-full rounded-lg" muted playsInline preload="metadata" />
+                            )}
+                        </div>
+                    ))}
+                </div>
+
+                {modalIndex !== null && (
+                    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+                        <div className="absolute top-5 right-5 flex gap-4 z-50">
+                            <button onClick={closeModal}><X className="text-white w-8 h-8" /></button>
+                            <button onClick={() => setModalIndex((modalIndex - 1 + mediaItems.length) % mediaItems.length)}><ArrowLeft className="text-white w-8 h-8" /></button>
+                            <button onClick={() => setModalIndex((modalIndex + 1) % mediaItems.length)}><ArrowRight className="text-white w-8 h-8" /></button>
+                            <button onClick={() => downloadMedia(mediaItems[modalIndex].src)}><Download className="text-white w-8 h-8" /></button>
+                            <button onClick={() => shareMedia(mediaItems[modalIndex].src)}><Share2 className="text-white w-8 h-8" /></button>
+                        </div>
+
+                        <div onClick={() => setZoomed(!zoomed)} className={`max-w-full max-h-full overflow-hidden ${zoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'} flex items-center justify-center`}>
+                            {mediaItems[modalIndex].type === 'image' ? (
+                                <img src={mediaItems[modalIndex].src} alt={mediaItems[modalIndex].alt} className={`transition duration-300 ${zoomed ? 'scale-150' : 'scale-100'} object-contain max-w-full max-h-screen`} />
+                            ) : (
+                                <video src={mediaItems[modalIndex].src} controls autoPlay className="object-contain max-w-full max-h-screen rounded-lg" />
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 };
 

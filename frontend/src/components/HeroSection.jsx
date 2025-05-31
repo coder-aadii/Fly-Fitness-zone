@@ -1,5 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaInstagram, FaFacebookF, FaWhatsapp } from 'react-icons/fa';
+import { MdEmail } from 'react-icons/md';
 
 const HeroSection = () => {
     return (
@@ -40,6 +42,46 @@ const HeroSection = () => {
                     >
                         Know About Classes
                     </Link>
+                </div>
+                
+                {/* Social Media Icons */}
+                <div className="mt-8 flex justify-center space-x-6">
+                    <a 
+                        href="https://www.instagram.com/flyfitnesszone?igsh=MXkxaDNvOWFxZXpnMg==?" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                        aria-label="Follow us on Instagram"
+                    >
+                        <FaInstagram className="text-xl" />
+                    </a>
+                    <a 
+                        href="https://www.facebook.com/flyfitnesszone" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                        aria-label="Follow us on Facebook"
+                    >
+                        <FaFacebookF className="text-xl" />
+                    </a>
+                    <a 
+                        href="https://wa.me/919406681919" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                        aria-label="Contact us on WhatsApp"
+                    >
+                        <FaWhatsapp className="text-xl" />
+                    </a>
+                    <a 
+                        href="mailto:flyfitnesszone27@gmail.com" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                        aria-label="Email us"
+                    >
+                        <MdEmail className="text-xl" />
+                    </a>
                 </div>
             </div>
         </section>

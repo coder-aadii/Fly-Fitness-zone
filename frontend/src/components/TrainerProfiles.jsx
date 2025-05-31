@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaInstagram, FaWhatsapp } from 'react-icons/fa';
 
 const trainers = [
     {
@@ -6,18 +7,24 @@ const trainers = [
         title: 'Certified Zumba Instructor',
         image: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748371451/Screenshot_2025_0528_001220_q10mk2.jpg',
         bio: 'Ritesh brings energy and passion to every Zumba class. With years of experience and official certification, he ensures every session feels like a party while helping you burn calories and build stamina.',
+        instagram: 'https://www.instagram.com/ritesh_sontani?igsh=MWtidWM4ZmQyM3VsNA==',
+        phone: '+919406681919'
     },
     {
         name: 'Aditya Aerpule',
         title: 'Certified Yoga Instructor',
         image: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748371452/1000155185_wkpz7i.jpg',
         bio: 'Aditya blends traditional yoga with modern fitness techniques. His expertise in Yoga, Meditation, and YogNidra helps students improve flexibility, reduce stress, and gain inner peace.',
+        instagram: 'https://www.instagram.com/mr_aadi.insane?igsh=cTVoNXF6Zm13eThi',
+        phone: '+919074703157'
     },
     {
-        name: 'Jigyasa Bhatiya',
+        name: 'Jigyasa Bhatia',
         title: 'Certified Zumba Instructor',
         image: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748371451/Screenshot_2025_0528_001305_c746xc.jpg',
-        bio: 'With her vibrant energy and rhythmic finesse, Jigyasa creates an uplifting environment in every class. She’s dedicated to making fitness fun and accessible for all.',
+        bio: "With her vibrant energy and rhythmic finesse, Jigyasa creates an uplifting environment in every class. She's dedicated to making fitness fun and accessible for all.",
+        instagram: 'https://www.instagram.com/jigyasabhatia?igsh=bWJ4bzY3aHlicTUy',
+        phone: '+919179717777'
     },
 ];
 
@@ -41,6 +48,27 @@ const TrainerProfiles = () => {
                         <h3 className="text-xl font-semibold text-gray-900">{trainer.name}</h3>
                         <p className="text-orange-600 font-medium">{trainer.title}</p>
                         <p className="mt-3 text-gray-600 text-sm">{trainer.bio}</p>
+                        
+                        <div className="mt-6 flex justify-center space-x-6">
+                            <a 
+                                href={trainer.instagram} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-pink-500 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                                aria-label={`${trainer.name}'s Instagram`}
+                            >
+                                <FaInstagram className="text-2xl" />
+                            </a>
+                            <a 
+                                href={`https://wa.me/${trainer.phone.replace(/\+/g, '')}`} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300"
+                                aria-label={`WhatsApp ${trainer.name}`}
+                            >
+                                <FaWhatsapp className="text-2xl" />
+                            </a>
+                        </div>
                     </div>
                 ))}
             </div>

@@ -34,6 +34,7 @@ const Header = () => {
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex space-x-6 font-medium text-gray-700">
                         <a href="/" className="hover:text-red-600 transition">Home</a>
+                        <a href="#offerings" onClick={(e) => handleAnchorClick(e, "#offerings")} className="hover:text-red-600 transition">Offerings</a>
                         <a href="#about" onClick={(e) => handleAnchorClick(e, "#about")} className="hover:text-red-600 transition">About Us</a>
                         <a href="#classes" onClick={(e) => handleAnchorClick(e, "#classes")} className="hover:text-red-600 transition">Classes</a>
                         <a href="#trainers" onClick={(e) => handleAnchorClick(e, "#trainers")} className="hover:text-red-600 transition">Trainers</a>
@@ -54,6 +55,7 @@ const Header = () => {
             {menuOpen && (
                 <div className="md:hidden bg-white shadow-md px-4 pb-4">
                     <a href="/" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Home</a>
+                    <a href="#offerings" onClick={(e) => handleAnchorClick(e, "#offerings")} className="block py-2 text-gray-700 hover:text-red-600">Offerings</a>
                     <a href="#about" onClick={(e) => handleAnchorClick(e, "#about")} className="block py-2 text-gray-700 hover:text-red-600">About Us</a>
                     <a href="#classes" onClick={(e) => handleAnchorClick(e, "#classes")} className="block py-2 text-gray-700 hover:text-red-600">Classes</a>
                     <a href="#trainers" onClick={(e) => handleAnchorClick(e, "#trainers")} className="block py-2 text-gray-700 hover:text-red-600">Trainers</a>

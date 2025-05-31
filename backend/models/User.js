@@ -1,7 +1,18 @@
 // models/User.js
 
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+
+// Schema for tracking weight history
+const weightHistorySchema = new mongoose.Schema({
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    weight: {
+        type: Number,
+        required: true
+    }
+});
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -15,27 +26,38 @@ const UserSchema = new mongoose.Schema({
         unique: true,
         lowercase: true,
         trim: true,
+        match: [/^\S+@\S+\.\S+$/, 'Please enter a valid email address'],
     },
     password: {
         type: String,
-        required: true,
-        minlength: 6,
+        required: true
     },
     role: {
         type: String,
         enum: ['user', 'admin'],
         default: 'user',
     },
+    otp: String,
+    otpExpiry: Date,
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     // Editable profile fields
     joiningDate: {
         type: Date,
+        default: Date.now
     },
     feesDueDate: {
         type: Date,
     },
     weight: {
         type: Number,
+        min: [0, 'Weight must be positive'],
     },
+    weightHistory: [weightHistorySchema],
     height: {
         type: Number,
     },
@@ -48,6 +70,7 @@ const UserSchema = new mongoose.Schema({
     },
     contactNumber: {
         type: String,
+        match: [/^[0-9]{10}$/, 'Please enter a valid 10-digit phone number'],
     },
     emergencyContactName: {
         type: String,
@@ -63,7 +86,7 @@ const UserSchema = new mongoose.Schema({
         type: String,
         enum: ['Morning', 'Evening', 'Any'],
     },
-    purposeToJoin: {
+    purpose: {
         type: String,
     },
     fitnessGoal: {
@@ -72,26 +95,20 @@ const UserSchema = new mongoose.Schema({
     shortTermGoal: {
         type: String,
     },
+    healthIssues: {
+        type: String,
+    },
     trainerPreference: {
         type: String,
         enum: ['Male', 'Female', 'No Preference'],
         default: 'No Preference'
+    },
+    profileImage: {
+        type: String
     }
 }, {
     timestamps: true
 });
 
-// Hash password before saving
-UserSchema.pre('save', async function (next) {
-    if (!this.isModified('password')) return next();
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-});
-
-// Compare password
-UserSchema.methods.matchPassword = async function (enteredPassword) {
-    return await bcrypt.compare(enteredPassword, this.password);
-};
 
 module.exports = mongoose.model('User', UserSchema);
