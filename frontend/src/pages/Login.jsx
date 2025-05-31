@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaLock, FaEnvelope, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate, Link } from 'react-router-dom';
 import Header from '../components/Header';
+import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 
 const Login = () => {
@@ -40,11 +41,11 @@ const Login = () => {
             // Save JWT token in localStorage
             localStorage.setItem('token', data.token);
 
-            // Redirect to user dashboard or admin dashboard based on role
+            // Redirect to feed or admin dashboard based on role
             if (data.user && data.user.role === 'admin') {
                 navigate('/admin-dashboard');
             } else {
-                navigate('/UserDashboard');
+                navigate('/feed');
             }
         } catch (err) {
             console.error('Login error:', err);
@@ -109,10 +110,17 @@ const Login = () => {
 
                         <button 
                             type="submit" 
-                            className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
+                            className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition relative"
                             disabled={isLoading}
                         >
-                            {isLoading ? 'Logging in...' : 'Login'}
+                            {isLoading ? (
+                                <span className="flex items-center justify-center">
+                                    <span className="w-5 h-5 mr-2">
+                                        <Loader size="small" />
+                                    </span>
+                                    <span>Logging in...</span>
+                                </span>
+                            ) : 'Login'}
                         </button>
                     </form>
                     <p className="text-sm text-gray-600 mt-4 text-center">

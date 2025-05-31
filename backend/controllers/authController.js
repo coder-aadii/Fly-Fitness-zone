@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const crypto = require('crypto');
 const sendOTPEmail = require('../utils/sendOTPEmail'); // helper to send email
 
 // Register Controller
@@ -144,6 +145,114 @@ exports.login = async (req, res) => {
                 role: user.role
             }
         });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+// Verify OTP Controller
+exports.verifyOTP = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+
+        // Validate input
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Email and OTP are required" });
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Check if OTP is valid and not expired
+        if (user.otp !== otp) {
+            return res.status(400).json({ message: "Invalid OTP" });
+        }
+
+        if (user.otpExpiry < Date.now()) {
+            return res.status(400).json({ message: "OTP has expired" });
+        }
+
+        // Mark user as verified and clear OTP
+        user.isVerified = true;
+        user.otp = undefined;
+        user.otpExpiry = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Email verified successfully" });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+// Forgot Password Controller
+exports.forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
+
+        // Validate input
+        if (!email) {
+            return res.status(400).json({ message: "Email is required" });
+        }
+
+        // Find user by email
+        const user = await User.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Generate reset token
+        const resetToken = crypto.randomBytes(20).toString('hex');
+        const resetTokenExpiry = Date.now() + 3600000; // 1 hour
+
+        // Save token to user
+        user.resetPasswordToken = resetToken;
+        user.resetPasswordExpires = resetTokenExpiry;
+        await user.save();
+
+        // In a real application, you would send an email with the reset link
+        // For now, just return the token in the response
+        res.status(200).json({
+            message: "Password reset link sent to your email",
+            resetToken // Include for testing purposes
+        });
+    } catch (err) {
+        res.status(500).json({ message: "Server error", error: err.message });
+    }
+};
+
+// Reset Password Controller
+exports.resetPassword = async (req, res) => {
+    try {
+        const { token, password } = req.body;
+
+        // Validate input
+        if (!token || !password) {
+            return res.status(400).json({ message: "Token and password are required" });
+        }
+
+        // Find user by reset token
+        const user = await User.findOne({
+            resetPasswordToken: token,
+            resetPasswordExpires: { $gt: Date.now() }
+        });
+
+        if (!user) {
+            return res.status(400).json({ message: "Invalid or expired token" });
+        }
+
+        // Hash new password
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Update user password and clear reset token
+        user.password = hashedPassword;
+        user.resetPasswordToken = undefined;
+        user.resetPasswordExpires = undefined;
+        await user.save();
+
+        res.status(200).json({ message: "Password reset successful" });
     } catch (err) {
         res.status(500).json({ message: "Server error", error: err.message });
     }

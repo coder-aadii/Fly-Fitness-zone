@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Header from '../components/Header';
+import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 
 const ResetPassword = () => {
@@ -160,7 +161,14 @@ const ResetPassword = () => {
                                     className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Resetting...' : 'Reset Password'}
+                                    {isLoading ? (
+                                        <span className="flex items-center justify-center">
+                                            <span className="w-5 h-5 mr-2">
+                                                <Loader size="small" />
+                                            </span>
+                                            <span>Resetting...</span>
+                                        </span>
+                                    ) : 'Reset Password'}
                                 </button>
                             </form>
                         </>

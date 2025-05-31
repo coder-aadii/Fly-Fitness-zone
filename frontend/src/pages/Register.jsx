@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 
 const Register = () => {
@@ -11,6 +12,8 @@ const Register = () => {
     const [error, setError] = useState('');
     const [successMsg, setSuccessMsg] = useState('');
     const [showOtpInput, setShowOtpInput] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const [isOtpLoading, setIsOtpLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -21,6 +24,7 @@ const Register = () => {
         e.preventDefault();
         setError('');
         setSuccessMsg('');
+        setIsLoading(true);
 
         try {
             const response = await fetch(ENDPOINTS.REGISTER, {
@@ -39,6 +43,8 @@ const Register = () => {
             setShowOtpInput(true);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -46,6 +52,7 @@ const Register = () => {
         e.preventDefault();
         setError('');
         setSuccessMsg('');
+        setIsOtpLoading(true);
 
         try {
             const response = await fetch(ENDPOINTS.VERIFY_OTP, {
@@ -65,6 +72,8 @@ const Register = () => {
             }, 2000);
         } catch (err) {
             setError(err.message);
+        } finally {
+            setIsOtpLoading(false);
         }
     };
 
@@ -140,8 +149,16 @@ const Register = () => {
                             <button
                                 type="submit"
                                 className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
+                                disabled={isLoading}
                             >
-                                Register
+                                {isLoading ? (
+                                    <span className="flex items-center justify-center">
+                                        <span className="w-5 h-5 mr-2">
+                                            <Loader size="small" />
+                                        </span>
+                                        <span>Registering...</span>
+                                    </span>
+                                ) : 'Register'}
                             </button>
                         </form>
                     )}
@@ -164,8 +181,16 @@ const Register = () => {
                             <button
                                 type="submit"
                                 className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
+                                disabled={isOtpLoading}
                             >
-                                Verify OTP
+                                {isOtpLoading ? (
+                                    <span className="flex items-center justify-center">
+                                        <span className="w-5 h-5 mr-2">
+                                            <Loader size="small" />
+                                        </span>
+                                        <span>Verifying...</span>
+                                    </span>
+                                ) : 'Verify OTP'}
                             </button>
                         </form>
                     )}

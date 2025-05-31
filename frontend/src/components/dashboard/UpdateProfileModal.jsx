@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
+import Loader from '../Loader';
 
 const UpdateProfileModal = ({ isOpen, onClose, profile, onSave }) => {
     const [formData, setFormData] = useState({ ...profile });
+    const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        onSave(formData);
+        setIsLoading(true);
+        try {
+            await onSave(formData);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     if (!isOpen) return null;
@@ -138,8 +145,16 @@ const UpdateProfileModal = ({ isOpen, onClose, profile, onSave }) => {
                         <button
                             type="submit"
                             className="bg-orange-500 hover:bg-orange-600 text-white rounded px-4 py-2"
+                            disabled={isLoading}
                         >
-                            Save
+                            {isLoading ? (
+                                <span className="flex items-center justify-center">
+                                    <span className="w-5 h-5 mr-2">
+                                        <Loader size="small" />
+                                    </span>
+                                    <span>Saving...</span>
+                                </span>
+                            ) : 'Save'}
                         </button>
                     </div>
                 </form>

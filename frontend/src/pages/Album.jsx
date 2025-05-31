@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, ArrowLeft, ArrowRight, Download, Share2 } from 'lucide-react';
 import UserNavbar from '../components/dashboard/UserNavbar';
+import { API_URL } from '../config';
+import Header from '../components/Header';
 
 const mediaItems = [
     { type: 'image', src: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748376266/449052580_321019774407387_4748102913008891394_n.heic_ghxfoc.jpg', alt: 'Image 1' },
@@ -34,7 +36,7 @@ const Album = () => {
                 }
 
                 // Fetch user data from backend
-                const response = await fetch('http://localhost:5000/api/users/profile', {
+                const response = await fetch(`${API_URL}/api/users/profile`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -110,6 +112,7 @@ const Album = () => {
     return (
         <>
             {user && <UserNavbar user={user} />}
+            <Header />
             <div className="max-w-7xl mx-auto px-4 py-10" id="album">
                 <h2 className="text-3xl font-bold mb-8 text-center text-orange-600">Photo & Video Album</h2>
                 <div className="columns-1 sm:columns-2 md:columns-3 gap-4 space-y-4">

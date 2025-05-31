@@ -1,18 +1,26 @@
+// routes/authRoutes.js
 const express = require('express');
 const router = express.Router();
-const { register, login } = require('../controllers/authController');
-const { verifyOTP } = require('../controllers/verifyController');
-const { forgotPassword, resetPassword } = require('../controllers/passwordController');
+const authController = require('../controllers/authController');
 
-// Registration and login routes
-router.post('/register', register);
-router.post('/login', login);
+// Register a new user
+// POST /api/auth/register
+router.post('/register', authController.register);
 
-// OTP verification route
-router.post('/verify-otp', verifyOTP);
+// Login user
+// POST /api/auth/login
+router.post('/login', authController.login);
 
-// Password reset routes
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
+// Verify OTP
+// POST /api/auth/verify-otp
+router.post('/verify-otp', authController.verifyOTP);
+
+// Forgot password
+// POST /api/auth/forgot-password
+router.post('/forgot-password', authController.forgotPassword);
+
+// Reset password
+// POST /api/auth/reset-password
+router.post('/reset-password', authController.resetPassword);
 
 module.exports = router;

@@ -30,6 +30,14 @@ export const ENDPOINTS = {
     ADMIN_PROFILE: `${API_URL}/api/admin/profile`,
     ADMIN_USERS: `${API_URL}/api/admin/users`,
     ADMIN_STATS: `${API_URL}/api/admin/stats`,
+    
+    // Feed endpoints
+    FEED_POSTS: `${API_URL}/api/posts`,
+    CREATE_POST: `${API_URL}/api/posts`,
+    LIKE_POST: (postId) => `${API_URL}/api/posts/${postId}/like`,
+    COMMENT_POST: (postId) => `${API_URL}/api/posts/${postId}/comment`,
+    DELETE_POST: (postId) => `${API_URL}/api/posts/${postId}`,
+    USER_POSTS: (userId) => `${API_URL}/api/posts/user/${userId || ''}`,
 };
 
 // Image URL helper

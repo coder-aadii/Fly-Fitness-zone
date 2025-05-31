@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FaEnvelope } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import Header from '../components/Header';
+import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 
 const ForgotPassword = () => {
@@ -77,7 +78,14 @@ const ForgotPassword = () => {
                                     className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
                                     disabled={isLoading}
                                 >
-                                    {isLoading ? 'Sending...' : 'Send Reset Link'}
+                                    {isLoading ? (
+                                        <span className="flex items-center justify-center">
+                                            <span className="w-5 h-5 mr-2">
+                                                <Loader size="small" />
+                                            </span>
+                                            <span>Sending...</span>
+                                        </span>
+                                    ) : 'Send Reset Link'}
                                 </button>
                             </form>
                         </>

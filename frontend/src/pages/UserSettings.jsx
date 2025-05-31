@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserNavbar from '../components/dashboard/UserNavbar';
+import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 import { FaUser, FaLock, FaEnvelope, FaCamera, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
+import Loader from '../components/Loader';
 import { ENDPOINTS, getImageUrl } from '../config';
 
 const UserSettings = () => {
@@ -19,6 +20,7 @@ const UserSettings = () => {
     });
     const [passwordError, setPasswordError] = useState('');
     const [passwordSuccess, setPasswordSuccess] = useState('');
+    const [passwordLoading, setPasswordLoading] = useState(false);
     const [emailData, setEmailData] = useState({
         newEmail: '',
         password: ''
@@ -26,6 +28,7 @@ const UserSettings = () => {
     const [emailError, setEmailError] = useState('');
     const [emailSuccess, setEmailSuccess] = useState('');
     const [verificationSent, setVerificationSent] = useState(false);
+    const [emailLoading, setEmailLoading] = useState(false);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
 
@@ -156,15 +159,18 @@ const UserSettings = () => {
         e.preventDefault();
         setPasswordError('');
         setPasswordSuccess('');
+        setPasswordLoading(true);
 
         // Validate passwords
         if (passwordData.newPassword !== passwordData.confirmPassword) {
             setPasswordError('New passwords do not match');
+            setPasswordLoading(false);
             return;
         }
 
         if (passwordData.newPassword.length < 6) {
             setPasswordError('Password must be at least 6 characters long');
+            setPasswordLoading(false);
             return;
         }
 
@@ -195,6 +201,8 @@ const UserSettings = () => {
             });
         } catch (err) {
             setPasswordError(err.message);
+        } finally {
+            setPasswordLoading(false);
         }
     };
 
@@ -208,11 +216,13 @@ const UserSettings = () => {
         setEmailError('');
         setEmailSuccess('');
         setVerificationSent(false);
+        setEmailLoading(true);
 
         // Validate email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(emailData.newEmail)) {
             setEmailError('Please enter a valid email address');
+            setEmailLoading(false);
             return;
         }
 
@@ -240,12 +250,14 @@ const UserSettings = () => {
             // Don't clear the form in case they need to resend
         } catch (err) {
             setEmailError(err.message);
+        } finally {
+            setEmailLoading(false);
         }
     };
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+            <Loader size="large" />
         </div>
     );
 
@@ -263,7 +275,7 @@ const UserSettings = () => {
 
     return (
         <>
-            <UserNavbar user={user} />
+            <DashboardNavbar user={user} />
             <div className="max-w-5xl mx-auto p-6">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">Account Settings</h1>
                 
@@ -346,27 +358,37 @@ const UserSettings = () => {
                                     <button
                                         onClick={handleImageUpload}
                                         className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded flex items-center"
-                                        disabled={!profileImage}
+                                        disabled={!profileImage || (uploadStatus && uploadStatus.type === 'loading')}
                                     >
-                                        <FaCheck className="mr-2" />
-                                        Upload Image
+                                        {uploadStatus && uploadStatus.type === 'loading' ? (
+                                            <>
+                                                <span className="w-5 h-5 mr-2">
+                                                    <Loader size="small" />
+                                                </span>
+                                                <span>Uploading...</span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <FaCheck className="mr-2" />
+                                                Upload Image
+                                            </>
+                                        )}
                                     </button>
                                 </div>
-                                {uploadStatus && (
+                                {uploadStatus && uploadStatus.type !== 'loading' && (
                                     <div className={`mt-4 p-3 rounded ${
                                         uploadStatus.type === 'error' 
                                             ? 'bg-red-100 text-red-700' 
-                                            : uploadStatus.type === 'success'
-                                                ? 'bg-green-100 text-green-700'
-                                                : 'bg-blue-100 text-blue-700'
+                                            : 'bg-green-100 text-green-700'
                                     }`}>
-                                        {uploadStatus.type === 'loading' && (
-                                            <div className="flex items-center">
-                                                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-orange-500 mr-2"></div>
-                                                {uploadStatus.message}
-                                            </div>
-                                        )}
-                                        {uploadStatus.type !== 'loading' && uploadStatus.message}
+                                        <div className="flex items-center">
+                                            {uploadStatus.type === 'error' ? (
+                                                <FaExclamationTriangle className="mr-2" />
+                                            ) : (
+                                                <FaCheck className="mr-2" />
+                                            )}
+                                            {uploadStatus.message}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -430,8 +452,16 @@ const UserSettings = () => {
                                 <button
                                     type="submit"
                                     className="bg-orange-500 hover:bg-orange-600 text-white rounded px-4 py-2"
+                                    disabled={passwordLoading}
                                 >
-                                    Update Password
+                                    {passwordLoading ? (
+                                        <span className="flex items-center justify-center">
+                                            <span className="w-5 h-5 mr-2">
+                                                <Loader size="small" />
+                                            </span>
+                                            <span>Updating...</span>
+                                        </span>
+                                    ) : 'Update Password'}
                                 </button>
                             </div>
                         </form>
@@ -489,8 +519,16 @@ const UserSettings = () => {
                                 <button
                                     type="submit"
                                     className="bg-orange-500 hover:bg-orange-600 text-white rounded px-4 py-2"
+                                    disabled={emailLoading}
                                 >
-                                    {verificationSent ? 'Resend Verification Email' : 'Send Verification Email'}
+                                    {emailLoading ? (
+                                        <span className="flex items-center justify-center">
+                                            <span className="w-5 h-5 mr-2">
+                                                <Loader size="small" />
+                                            </span>
+                                            <span>Sending...</span>
+                                        </span>
+                                    ) : (verificationSent ? 'Resend Verification Email' : 'Send Verification Email')}
                                 </button>
                             </div>
                         </form>

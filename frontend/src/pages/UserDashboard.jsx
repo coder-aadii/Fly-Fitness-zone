@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import UserNavbar from '../components/dashboard/UserNavbar';
+import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 import WelcomeBanner from '../components/dashboard/WelcomeBanner';
 import UpdateProfileModal from '../components/dashboard/UpdateProfileModal';
 import ProfileCard from '../components/dashboard/ProfileCard';
 import FeesDueCard from '../components/dashboard/FeesDueCard';
 import ProgressTracker from '../components/dashboard/ProgressTracker';
+import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 
 const UserDashboard = () => {
@@ -115,7 +116,7 @@ const UserDashboard = () => {
 
     if (loading) return (
         <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
+            <Loader size="large" />
         </div>
     );
 
@@ -145,7 +146,7 @@ const UserDashboard = () => {
 
     return (
         <>
-            <UserNavbar user={user} />
+            <DashboardNavbar user={user} />
             <div className="max-w-5xl mx-auto p-6">
                 <WelcomeBanner userName={user.name} onUpdateClick={handleUpdateClick} />
                 <UpdateProfileModal
