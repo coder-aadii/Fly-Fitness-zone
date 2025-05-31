@@ -35,6 +35,11 @@ app.use(express.json());
 // Serve static files from the uploads directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
+// Health check endpoint for monitoring
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', environment: process.env.NODE_ENV });
+});
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/admin', adminRoutes);

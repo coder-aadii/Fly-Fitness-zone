@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: fly-fitness-backend
+    env: node
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      # Add other environment variables as needed
+    autoDeploy: true
