@@ -1,9 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { X, ArrowLeft, ArrowRight, Download, Share2 } from 'lucide-react';
-import { API_URL } from '../config';
 import Header from '../components/Header';
-import FeedNavbar from '../feed/components/FeedNavbar';
 
 const mediaItems = [
     { type: 'image', src: 'https://res.cloudinary.com/deoegf9on/image/upload/v1748376266/449052580_321019774407387_4748102913008891394_n.heic_ghxfoc.jpg', alt: 'Image 1' },
@@ -18,51 +15,8 @@ const mediaItems = [
 ];
 
 const Album = () => {
-    const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [modalIndex, setModalIndex] = useState(null);
     const [zoomed, setZoomed] = useState(false);
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const fetchUserData = async () => {
-            try {
-                // Check if token exists
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    // If no token, we still show the album but without user-specific features
-                    setLoading(false);
-                    return;
-                }
-
-                // Fetch user data from backend
-                const response = await fetch(`${API_URL}/api/users/profile`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        // Unauthorized - token expired or invalid
-                        localStorage.removeItem('token');
-                        setLoading(false);
-                        return;
-                    }
-                    throw new Error('Failed to fetch user data');
-                }
-
-                const userData = await response.json();
-                setUser(userData);
-            } catch (err) {
-                console.error(err.message);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchUserData();
-    }, [navigate]);
 
     const closeModal = () => {
         setModalIndex(null);
@@ -103,15 +57,9 @@ const Album = () => {
         }
     };
 
-    if (loading) return (
-        <div className="flex justify-center items-center h-screen">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-orange-500"></div>
-        </div>
-    );
-
+    
     return (
         <>
-            {/* {user && <FeedNavbar user={user} />} */}
             <Header />
             <div className="max-w-7xl mx-auto px-4 py-10" id="album">
                 <h2 className="text-3xl font-bold mb-8 text-center text-orange-600">Photo & Video Album</h2>
