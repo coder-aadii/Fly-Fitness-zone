@@ -8,6 +8,13 @@ const logger = require('../utils/logger');
  */
 exports.getNotifications = async (req, res) => {
     try {
+        // Check if user is admin (admin has a string ID, not a valid ObjectId)
+        if (req.userId === 'admin-id' || req.role === 'admin') {
+            // For admin, return empty notifications array
+            return res.json({ notifications: [] });
+        }
+
+        // For regular users, fetch their notifications
         const notifications = await Notification.find({ recipient: req.userId })
             .sort({ createdAt: -1 })
             .populate('sender', 'name profileImage')
@@ -26,6 +33,12 @@ exports.getNotifications = async (req, res) => {
  */
 exports.markAsRead = async (req, res) => {
     try {
+        // Check if user is admin
+        if (req.userId === 'admin-id' || req.role === 'admin') {
+            // For admin, just return success without doing anything
+            return res.json({ message: 'Notification marked as read' });
+        }
+
         const notification = await Notification.findOne({
             _id: req.params.id,
             recipient: req.userId
@@ -50,6 +63,12 @@ exports.markAsRead = async (req, res) => {
  */
 exports.markAllAsRead = async (req, res) => {
     try {
+        // Check if user is admin
+        if (req.userId === 'admin-id' || req.role === 'admin') {
+            // For admin, just return success without doing anything
+            return res.json({ message: 'All notifications marked as read' });
+        }
+
         await Notification.updateMany(
             { recipient: req.userId, read: false },
             { $set: { read: true } }
@@ -67,6 +86,12 @@ exports.markAllAsRead = async (req, res) => {
  */
 exports.deleteNotification = async (req, res) => {
     try {
+        // Check if user is admin
+        if (req.userId === 'admin-id' || req.role === 'admin') {
+            // For admin, just return success without doing anything
+            return res.json({ message: 'Notification deleted' });
+        }
+
         const notification = await Notification.findOne({
             _id: req.params.id,
             recipient: req.userId
@@ -121,6 +146,13 @@ exports.createNotification = async (recipientId, senderId, type, content, relate
  */
 exports.getUnreadCount = async (req, res) => {
     try {
+        // Check if user is admin
+        if (req.userId === 'admin-id' || req.role === 'admin') {
+            // For admin, return zero count
+            return res.json({ count: 0 });
+        }
+
+        // For regular users, count their unread notifications
         const count = await Notification.countDocuments({
             recipient: req.userId,
             read: false
