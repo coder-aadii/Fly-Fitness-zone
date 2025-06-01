@@ -62,6 +62,10 @@ router.post('/:id/comment', auth, postController.addComment);
 // DELETE /api/posts/:id
 router.delete('/:id', auth, postController.deletePost);
 
+// Delete a comment
+// DELETE /api/posts/:postId/comment/:commentId
+router.delete('/:postId/comment/:commentId', auth, postController.deleteComment);
+
 // Get posts by a specific user
 // GET /api/posts/user/:userId
 router.get('/user/:userId', auth, postController.getUserPosts);

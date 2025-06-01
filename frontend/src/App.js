@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import GlobalLoader from './components/GlobalLoader';
 import { AuthProvider } from './context/AuthContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -37,8 +38,9 @@ function App() {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
+      <NotificationProvider>
+        <BrowserRouter>
+          <Routes>
         {/* Landing Page Route */}
         <Route path="/" element={<LandingPage />} />
 
@@ -68,8 +70,9 @@ function App() {
         
         {/* Catch-all route for 404 errors */}
         <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+          </Routes>
+        </BrowserRouter>
+      </NotificationProvider>
     </AuthProvider>
   );
 }

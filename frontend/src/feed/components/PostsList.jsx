@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaHeart, FaRegHeart, FaComment, FaShare, FaEllipsisH, FaTrash } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaShare, FaEllipsisH, FaTrash, FaEllipsisV } from 'react-icons/fa';
 import { getImageUrl, ENDPOINTS } from '../../config';
 import Loader from '../../components/Loader';
 
@@ -29,6 +29,48 @@ const PostItem = ({ post, currentUser }) => {
   const [comments, setComments] = useState(post.comments || []);
   const [showOptions, setShowOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [activeCommentMenu, setActiveCommentMenu] = useState(null);
+
+  // Add click outside handler for comment option menus
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (activeCommentMenu && !event.target.closest(`#comment-menu-container-${activeCommentMenu}`)) {
+        const menu = document.getElementById(`comment-options-${activeCommentMenu}`);
+        if (menu) {
+          menu.classList.add('hidden');
+        }
+        setActiveCommentMenu(null);
+      }
+      
+      // Also handle post options menu
+      if (showOptions && !event.target.closest('.post-options-container')) {
+        setShowOptions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [activeCommentMenu, showOptions]);
+
+  // Function to toggle comment menu
+  const toggleCommentMenu = (commentId) => {
+    // Close any open menu first
+    if (activeCommentMenu) {
+      const previousMenu = document.getElementById(`comment-options-${activeCommentMenu}`);
+      if (previousMenu) {
+        previousMenu.classList.add('hidden');
+      }
+    }
+    
+    // Toggle the clicked menu
+    const menu = document.getElementById(`comment-options-${commentId}`);
+    if (menu) {
+      menu.classList.toggle('hidden');
+      setActiveCommentMenu(menu.classList.contains('hidden') ? null : commentId);
+    }
+  };
 
   // Calculate time remaining before post expires (36 hours from creation)
   const calculateTimeRemaining = () => {
@@ -164,6 +206,36 @@ const PostItem = ({ post, currentUser }) => {
     }
   };
 
+  const handleDeleteComment = async (commentId) => {
+    if (!window.confirm('Are you sure you want to delete this comment?')) {
+      return;
+    }
+    
+    try {
+      // Hide the comment immediately for better UX
+      document.getElementById(`comment-${commentId}`).style.opacity = '0.5';
+      
+      const token = localStorage.getItem('token');
+      const response = await fetch(ENDPOINTS.DELETE_COMMENT(post._id, commentId), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (!response.ok) {
+        // Show the comment again if deletion fails
+        document.getElementById(`comment-${commentId}`).style.opacity = '1';
+        throw new Error('Failed to delete comment');
+      }
+      
+      // Remove the comment from the local state
+      setComments(comments.filter(comment => comment._id !== commentId));
+    } catch (err) {
+      console.error('Error deleting comment:', err);
+    }
+  };
+
   const isOwnPost = post.user?._id === currentUser?._id;
 
   return (
@@ -196,7 +268,7 @@ const PostItem = ({ post, currentUser }) => {
           </div>
         </div>
         
-        <div className="relative">
+        <div className="relative post-options-container">
           <button 
             onClick={() => setShowOptions(!showOptions)}
             className="text-gray-500 hover:text-gray-700 p-2"
@@ -335,36 +407,70 @@ const PostItem = ({ post, currentUser }) => {
           {/* Comments list */}
           <div className="space-y-3 max-h-60 overflow-y-auto">
             {comments.length > 0 ? (
-              comments.map(comment => (
-                <div key={comment._id} className="flex space-x-2">
-                  <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
-                    {comment.user?.profileImage ? (
-                      <img 
-                        src={getImageUrl(comment.user.profileImage)} 
-                        alt={comment.user.name} 
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="h-full w-full bg-orange-200 flex items-center justify-center">
-                        <span className="text-orange-500 font-semibold">
-                          {comment.user?.name?.charAt(0) || 'U'}
-                        </span>
+              comments.map(comment => {
+                const isOwnComment = comment.user?._id === currentUser?._id;
+                const isPostOwner = post.user?._id === currentUser?._id;
+                const canDeleteComment = isOwnComment || isPostOwner;
+                
+                return (
+                  <div id={`comment-${comment._id}`} key={comment._id} className="flex space-x-2">
+                    <div className="h-8 w-8 rounded-full overflow-hidden flex-shrink-0">
+                      {comment.user?.profileImage ? (
+                        <img 
+                          src={getImageUrl(comment.user.profileImage)} 
+                          alt={comment.user.name} 
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="h-full w-full bg-orange-200 flex items-center justify-center">
+                          <span className="text-orange-500 font-semibold">
+                            {comment.user?.name?.charAt(0) || 'U'}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 relative group">
+                      <div className="bg-gray-100 rounded-lg px-3 py-2">
+                        <div className="flex justify-between items-start">
+                          <h4 className="font-semibold text-sm">{comment.user?.name}</h4>
+                          {canDeleteComment && (
+                            <div 
+                              id={`comment-menu-container-${comment._id}`}
+                              className="relative"
+                            >
+                              <button 
+                                className="text-gray-400 hover:text-gray-600 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                onClick={() => toggleCommentMenu(comment._id)}
+                                title="Comment options"
+                              >
+                                <FaEllipsisV size={12} />
+                              </button>
+                              <div 
+                                id={`comment-options-${comment._id}`}
+                                className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 hidden"
+                              >
+                                <button
+                                  onClick={() => handleDeleteComment(comment._id)}
+                                  className="flex items-center w-full px-3 py-2 text-xs text-red-600 hover:bg-gray-100"
+                                >
+                                  <FaTrash className="mr-2" size={10} />
+                                  Delete Comment
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-sm">{comment.text}</p>
                       </div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <div className="bg-gray-100 rounded-lg px-3 py-2">
-                      <h4 className="font-semibold text-sm">{comment.user?.name}</h4>
-                      <p className="text-sm">{comment.text}</p>
-                    </div>
-                    <div className="flex items-center mt-1 text-xs text-gray-500 space-x-2">
-                      <span>{new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                      <button className="hover:text-orange-500">Like</button>
-                      <button className="hover:text-orange-500">Reply</button>
+                      <div className="flex items-center mt-1 text-xs text-gray-500 space-x-2">
+                        <span>{new Date(comment.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                        <button className="hover:text-orange-500">Like</button>
+                        <button className="hover:text-orange-500">Reply</button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p className="text-center text-gray-500 text-sm">No comments yet. Be the first to comment!</p>
             )}

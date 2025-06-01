@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 import { FaUser, FaLock, FaEnvelope, FaCamera, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import { ENDPOINTS, getImageUrl } from '../config';
 import { useAuth } from '../context/AuthContext';
+import FeedNavbar from '../feed/components/FeedNavbar';
 
 const UserSettings = () => {
     const [user, setUser] = useState(null);
@@ -286,7 +286,7 @@ const UserSettings = () => {
 
     return (
         <>
-            <DashboardNavbar user={user} />
+            <FeedNavbar user={user} />
             <div className="max-w-5xl mx-auto p-6">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">Account Settings</h1>
                 

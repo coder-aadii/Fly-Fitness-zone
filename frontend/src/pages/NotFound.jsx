@@ -33,10 +33,25 @@ const NotFound = ({ type }) => {
       return '/feed';
     } else if (referrer.includes('/UserDashboard')) {
       return '/UserDashboard';
+    } else if (referrer.includes('/admin-dashboard')) {
+      return '/admin-dashboard';
     } else if (location.state && location.state.from) {
       // If location state contains a 'from' path, use that
       return location.state.from;
     } else {
+      // Check user role from localStorage to determine default redirect
+      try {
+        const userData = localStorage.getItem('userData');
+        if (userData) {
+          const user = JSON.parse(userData);
+          if (user.role === 'admin') {
+            return '/admin-dashboard';
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+      }
+      
       // Default for authenticated users
       return '/feed';
     }
@@ -66,6 +81,9 @@ const NotFound = ({ type }) => {
       setActionIcon(<FaUserAlt className="mr-2" />);
     } else if (path === '/UserDashboard') {
       setActionText('Return to dashboard');
+      setActionIcon(<FaUserAlt className="mr-2" />);
+    } else if (path === '/admin-dashboard') {
+      setActionText('Return to admin dashboard');
       setActionIcon(<FaUserAlt className="mr-2" />);
     } else {
       setActionText('Return to homepage');
@@ -153,6 +171,8 @@ const NotFound = ({ type }) => {
       return 'to feed page';
     } else if (redirectPath === '/UserDashboard') {
       return 'to dashboard';
+    } else if (redirectPath === '/admin-dashboard') {
+      return 'to admin dashboard';
     } else if (redirectPath === '/login') {
       return 'to login';
     } else {

@@ -37,7 +37,15 @@ export const ENDPOINTS = {
     LIKE_POST: (postId) => `${API_URL}/api/posts/${postId}/like`,
     COMMENT_POST: (postId) => `${API_URL}/api/posts/${postId}/comment`,
     DELETE_POST: (postId) => `${API_URL}/api/posts/${postId}`,
+    DELETE_COMMENT: (postId, commentId) => `${API_URL}/api/posts/${postId}/comment/${commentId}`,
     USER_POSTS: (userId) => `${API_URL}/api/posts/user/${userId || ''}`,
+    
+    // Notification endpoints
+    NOTIFICATIONS: `${API_URL}/api/notifications`,
+    NOTIFICATION_UNREAD_COUNT: `${API_URL}/api/notifications/unread-count`,
+    MARK_NOTIFICATION_READ: (notificationId) => `${API_URL}/api/notifications/${notificationId}/read`,
+    MARK_ALL_NOTIFICATIONS_READ: `${API_URL}/api/notifications/mark-all-read`,
+    DELETE_NOTIFICATION: (notificationId) => `${API_URL}/api/notifications/${notificationId}`,
 };
 
 // Image URL helper

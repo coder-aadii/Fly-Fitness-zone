@@ -4,6 +4,7 @@ const User = require('../models/User');
 const fs = require('fs');
 const path = require('path');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinaryUpload');
+const { createNotification } = require('./notificationController');
 
 // Get all posts (with pagination)
 exports.getPosts = async (req, res) => {
@@ -101,6 +102,26 @@ exports.likePost = async (req, res) => {
         } else {
             // Like the post
             post.likes.push(userId);
+            
+            // Create notification if the post owner is not the same as the liker
+            if (post.user.toString() !== userId) {
+                // Get user name for notification content
+                const user = await User.findById(userId, 'name');
+                const notificationContent = `${user.name} liked your post`;
+                
+                try {
+                    await createNotification(
+                        post.user, // recipient (post owner)
+                        userId,    // sender (user who liked)
+                        'like',    // notification type
+                        notificationContent,
+                        postId     // related post
+                    );
+                } catch (notifError) {
+                    console.error('Error creating like notification:', notifError);
+                    // Continue even if notification creation fails
+                }
+            }
         }
 
         await post.save();
@@ -153,6 +174,26 @@ exports.addComment = async (req, res) => {
             comment => comment._id.toString() === addedComment._id.toString()
         );
 
+        // Create notification if the post owner is not the same as the commenter
+        if (post.user.toString() !== userId) {
+            // Get user name for notification content
+            const user = await User.findById(userId, 'name');
+            const notificationContent = `${user.name} commented on your post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`;
+            
+            try {
+                await createNotification(
+                    post.user, // recipient (post owner)
+                    userId,    // sender (user who commented)
+                    'comment', // notification type
+                    notificationContent,
+                    postId     // related post
+                );
+            } catch (notifError) {
+                console.error('Error creating comment notification:', notifError);
+                // Continue even if notification creation fails
+            }
+        }
+
         res.status(201).json(populatedComment);
     } catch (err) {
         console.error('Error adding comment:', err);
@@ -200,6 +241,40 @@ exports.deletePost = async (req, res) => {
         res.json({ message: 'Post deleted successfully' });
     } catch (err) {
         console.error('Error deleting post:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+};
+
+// Delete a comment
+exports.deleteComment = async (req, res) => {
+    try {
+        const { postId, commentId } = req.params;
+        const userId = req.userId;
+
+        // Find the post
+        const post = await Post.findById(postId);
+        if (!post) {
+            return res.status(404).json({ message: 'Post not found' });
+        }
+
+        // Find the comment
+        const comment = post.comments.id(commentId);
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
+
+        // Check if user is authorized to delete the comment (comment owner or post owner)
+        if (comment.user.toString() !== userId && post.user.toString() !== userId) {
+            return res.status(403).json({ message: 'Not authorized to delete this comment' });
+        }
+
+        // Remove the comment using pull operator
+        post.comments.pull(commentId);
+        await post.save();
+
+        res.json({ message: 'Comment deleted successfully' });
+    } catch (err) {
+        console.error('Error deleting comment:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 };
