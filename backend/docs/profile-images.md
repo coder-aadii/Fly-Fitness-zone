@@ -46,7 +46,7 @@ npm run migrate-profiles
 
 ## Differences from Post Images
 
-Unlike post images, which are automatically deleted after 36 hours:
+Unlike post images, which are automatically deleted after 24 hours:
 
 1. Profile images do not have an expiration time
 2. Profile images are not tracked in the ExpiredMedia collection

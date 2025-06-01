@@ -58,7 +58,13 @@ const Login = () => {
             }
         } catch (err) {
             console.error('Login error:', err);
-            setError(err.message || 'An unexpected error occurred');
+            
+            // Check if the error is "Invalid credentials" and provide a more helpful message
+            if (err.message === 'Invalid credentials') {
+                setError('Account not found. Please register first or check your credentials.');
+            } else {
+                setError(err.message || 'An unexpected error occurred');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -70,7 +76,18 @@ const Login = () => {
             <section className="bg-gradient-to-r from-orange-100 via-white to-orange-100 min-h-screen flex items-center justify-center py-12 px-4">
                 <div className="bg-white rounded-xl shadow-xl p-10 w-full max-w-md">
                     <h2 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">Login to Your Account</h2>
-                    {error && <p className="text-red-600 mb-4 text-center">{error}</p>}
+                    {error && (
+                        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
+                            <p className="text-center">{error}</p>
+                            {error.includes('register') && (
+                                <p className="text-center mt-2">
+                                    <Link to="/register" className="text-orange-600 font-medium hover:underline">
+                                        Register Now
+                                    </Link>
+                                </p>
+                            )}
+                        </div>
+                    )}
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div>
                             <label className="block text-gray-700 mb-2">Email</label>

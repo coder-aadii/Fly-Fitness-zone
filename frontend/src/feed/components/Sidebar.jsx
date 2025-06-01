@@ -1,11 +1,14 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { FaUser, FaCog, FaDumbbell, FaCalendarAlt, FaUsers, FaChartLine } from 'react-icons/fa';
 import { getImageUrl } from '../../config';
 
 const Sidebar = ({ user }) => {
+  const location = useLocation();
+  const currentPath = location.pathname;
+  
   return (
-    <div className="bg-white rounded-lg shadow p-4 sticky top-4">
+    <div className="bg-white rounded-lg shadow p-4">
       {/* User profile section */}
       <div className="text-center mb-6">
         <div className="h-20 w-20 rounded-full overflow-hidden mx-auto mb-3 border-2 border-orange-300">
@@ -38,7 +41,11 @@ const Sidebar = ({ user }) => {
       <nav className="space-y-1">
         <Link 
           to="/feed" 
-          className="flex items-center space-x-3 p-3 rounded-lg bg-orange-50 text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/feed' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaUsers className="text-lg" />
           <span>Feed</span>
@@ -46,7 +53,11 @@ const Sidebar = ({ user }) => {
         
         <Link 
           to="/UserDashboard" 
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/UserDashboard' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaUser className="text-lg" />
           <span>My Profile</span>
@@ -54,7 +65,11 @@ const Sidebar = ({ user }) => {
         
         <Link 
           to="/workouts" 
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/workouts' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaDumbbell className="text-lg" />
           <span>Workouts</span>
@@ -62,7 +77,11 @@ const Sidebar = ({ user }) => {
         
         <Link 
           to="/schedule" 
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/schedule' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaCalendarAlt className="text-lg" />
           <span>Schedule</span>
@@ -70,7 +89,11 @@ const Sidebar = ({ user }) => {
         
         <Link 
           to="/progress" 
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/progress' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaChartLine className="text-lg" />
           <span>Progress</span>
@@ -78,7 +101,11 @@ const Sidebar = ({ user }) => {
         
         <Link 
           to="/UserSettings" 
-          className="flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 text-gray-700 hover:text-orange-500"
+          className={`flex items-center space-x-3 p-3 rounded-lg ${
+            currentPath === '/UserSettings' 
+              ? 'bg-orange-50 text-orange-500' 
+              : 'hover:bg-gray-50 text-gray-700 hover:text-orange-500'
+          }`}
         >
           <FaCog className="text-lg" />
           <span>Settings</span>
@@ -88,7 +115,7 @@ const Sidebar = ({ user }) => {
       {/* Expiration notice */}
       <div className="mt-6 p-3 bg-gray-50 rounded-lg text-sm text-gray-600">
         <p className="font-medium mb-1">Post Expiration</p>
-        <p>All posts automatically expire after 36 hours to keep content fresh and relevant.</p>
+        <p>All posts automatically expire after 24 hours to keep content fresh and relevant.</p>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 {
-  "short_name": "FFZ",
-  "name": "Create React App Sample",
+  "short_name": "Fly Fitness",
+  "name": "Fly Fitness Zone",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +20,10 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#f97316",
+  "background_color": "#ffffff",
+  "gcm_sender_id": "103953800507",
+  "permissions": [
+    "gcm"
+  ]
 }

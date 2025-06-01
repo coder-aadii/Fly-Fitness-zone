@@ -1,7 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { FaImage, FaTimes, FaSmile } from 'react-icons/fa';
+import { FaImage, FaTimes, FaSmile, FaRunning, FaGrinBeam, FaAngry, FaTrophy, FaHeartbeat, FaDumbbell, FaFire } from 'react-icons/fa';
 import Loader from '../../components/Loader';
 import { getImageUrl, ENDPOINTS } from '../../config';
+
+// Predefined feelings with emojis for fitness context
+const FEELINGS = [
+  { id: 'energetic', text: 'energetic', icon: <FaFire className="text-orange-500" /> },
+  { id: 'fit', text: 'fit', icon: <FaDumbbell className="text-blue-500" /> },
+  { id: 'accomplished', text: 'accomplished', icon: <FaTrophy className="text-yellow-500" /> },
+  { id: 'motivated', text: 'motivated', icon: <FaHeartbeat className="text-red-500" /> },
+  { id: 'happy', text: 'happy', icon: <FaGrinBeam className="text-yellow-500" /> },
+  { id: 'exhausted', text: 'exhausted', icon: <FaRunning className="text-gray-500" /> },
+  { id: 'challenged', text: 'challenged', icon: <FaAngry className="text-red-500" /> },
+];
 
 const CreatePost = ({ user, onPostCreated }) => {
   const [content, setContent] = useState('');
@@ -9,7 +20,36 @@ const CreatePost = ({ user, onPostCreated }) => {
   const [mediaFile, setMediaFile] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showFeelingMenu, setShowFeelingMenu] = useState(false);
+  const [selectedFeeling, setSelectedFeeling] = useState(null);
   const fileInputRef = useRef(null);
+  const feelingMenuRef = useRef(null);
+
+  // Close feeling menu when clicking outside
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showFeelingMenu) {
+        const feelingPopup = document.getElementById('feeling-menu-popup');
+        const isClickInsideFeelingButton = feelingMenuRef.current && feelingMenuRef.current.contains(event.target);
+        const isClickInsideFeelingPopup = feelingPopup && feelingPopup.contains(event.target);
+        
+        if (!isClickInsideFeelingButton && !isClickInsideFeelingPopup) {
+          setShowFeelingMenu(false);
+        }
+      }
+    };
+
+    // Add event listener for clicks
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Add event listener for touch events to handle mobile better
+    document.addEventListener('touchstart', handleClickOutside);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [showFeelingMenu]);
 
   const handleMediaChange = (e) => {
     const file = e.target.files[0];
@@ -51,6 +91,11 @@ const CreatePost = ({ user, onPostCreated }) => {
     }
   };
 
+  const selectFeeling = (feeling) => {
+    setSelectedFeeling(feeling);
+    setShowFeelingMenu(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -66,7 +111,12 @@ const CreatePost = ({ user, onPostCreated }) => {
       const token = localStorage.getItem('token');
       const formData = new FormData();
       
-      formData.append('content', content);
+      // Add feeling to content if selected
+      const postContent = selectedFeeling 
+        ? `${content} - feeling ${selectedFeeling.text}` 
+        : content;
+      
+      formData.append('content', postContent);
       if (mediaFile) {
         formData.append('media', mediaFile);
       }
@@ -89,6 +139,7 @@ const CreatePost = ({ user, onPostCreated }) => {
       // Clear form
       setContent('');
       removeMedia();
+      setSelectedFeeling(null);
       
       // Notify parent component
       onPostCreated(newPost);
@@ -177,12 +228,59 @@ const CreatePost = ({ user, onPostCreated }) => {
                 >
                   <FaImage />
                 </button>
-                <button
-                  type="button"
-                  className="text-gray-500 hover:text-orange-500 p-2 rounded-full hover:bg-gray-100"
-                >
-                  <FaSmile />
-                </button>
+                <div className="relative" ref={feelingMenuRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowFeelingMenu(!showFeelingMenu)}
+                    className="text-gray-500 hover:text-orange-500 p-2 rounded-full hover:bg-gray-100"
+                    title="How are you feeling?"
+                  >
+                    <FaSmile />
+                  </button>
+                  
+                  {showFeelingMenu && (
+                    <div id="feeling-menu-popup" className="absolute top-full mt-2 left-0 z-20 bg-white rounded-lg shadow-lg p-3 w-64 max-w-[calc(100vw-2rem)]">
+                      <div className="flex justify-between items-center mb-2">
+                        <h4 className="font-medium text-gray-700">How are you feeling?</h4>
+                        <button 
+                          onClick={() => setShowFeelingMenu(false)}
+                          className="text-gray-400 hover:text-gray-600"
+                        >
+                          <FaTimes size={14} />
+                        </button>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-2">
+                        {FEELINGS.map(feeling => (
+                          <button
+                            key={feeling.id}
+                            onClick={() => selectFeeling(feeling)}
+                            className="flex items-center p-2 hover:bg-gray-100 rounded-lg"
+                          >
+                            <span className="mr-2">{feeling.icon}</span>
+                            <span className="text-sm capitalize">{feeling.text}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+                
+                {selectedFeeling && (
+                  <div className="ml-2 flex items-center text-gray-600">
+                    <span className="mr-1">Feeling:</span>
+                    <span className="flex items-center">
+                      {selectedFeeling.icon}
+                      <span className="ml-1 text-sm capitalize">{selectedFeeling.text}</span>
+                    </span>
+                    <button 
+                      onClick={() => setSelectedFeeling(null)}
+                      className="ml-1 text-gray-400 hover:text-gray-600"
+                    >
+                      <FaTimes size={12} />
+                    </button>
+                  </div>
+                )}
               </div>
               
               <button
@@ -209,7 +307,7 @@ const CreatePost = ({ user, onPostCreated }) => {
           </form>
           
           <div className="text-xs text-gray-500 mt-2">
-            Posts will automatically be deleted after 36 hours
+            Posts will automatically be deleted after 24 hours
           </div>
         </div>
       </div>

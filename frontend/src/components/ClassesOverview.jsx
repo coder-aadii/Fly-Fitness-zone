@@ -1,7 +1,90 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaClock } from 'react-icons/fa';
+import { ENDPOINTS } from '../config';
+
+// Default batch times if API fails
+const defaultBatchTimes = {
+    morning: ['6:00 AM – 7:00 AM', '7:00 AM – 8:00 AM', '8:00 AM – 9:00 AM'],
+    evening: ['5:00 PM – 6:00 PM', '6:00 PM – 7:00 PM']
+};
 
 const ClassesOverview = () => {
+    // We're keeping setClasses, setLoading, setError, and setBatchTimes because they're used in the fetchClasses function
+    const [, setClasses] = useState([]);
+    const [, setLoading] = useState(true);
+    const [, setError] = useState(null);
+    
+    // Group classes by time of day (morning/evening)
+    const [, setBatchTimes] = useState(defaultBatchTimes);
+
+    useEffect(() => {
+        const fetchClasses = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(ENDPOINTS.ADMIN_CLASSES);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch classes');
+                }
+                
+                const data = await response.json();
+                
+                // Ensure we have an array of classes
+                if (Array.isArray(data) && data.length > 0) {
+                    // Filter active classes
+                    const activeClasses = data.filter(cls => cls.active !== false);
+                    setClasses(activeClasses);
+                    
+                    // Extract unique batch times and organize by morning/evening
+                    const morningTimes = new Set();
+                    const eveningTimes = new Set();
+                    
+                    activeClasses.forEach(cls => {
+                        const startHour = new Date(cls.startTime).getHours();
+                        // We're removing the unused endHour variable
+                        
+                        const startTimeStr = formatTime(cls.startTime);
+                        const endTimeStr = formatTime(cls.endTime);
+                        const timeRange = `${startTimeStr} – ${endTimeStr}`;
+                        
+                        if (startHour < 12) {
+                            morningTimes.add(timeRange);
+                        } else {
+                            eveningTimes.add(timeRange);
+                        }
+                    });
+                    
+                    // Only update batch times if we found some
+                    if (morningTimes.size > 0 || eveningTimes.size > 0) {
+                        setBatchTimes({
+                            morning: Array.from(morningTimes),
+                            evening: Array.from(eveningTimes)
+                        });
+                    }
+                }
+                
+                setError(null);
+            } catch (err) {
+                console.error('Error fetching classes:', err);
+                // Keep using default batch times if fetch fails
+            } finally {
+                setLoading(false);
+            }
+        };
+        
+        fetchClasses();
+    }, []);
+    
+    // Format time for display
+    const formatTime = (dateString) => {
+        if (!dateString) return '';
+        const date = new Date(dateString);
+        const hours = date.getHours();
+        const minutes = date.getMinutes();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHour = hours % 12 || 12;
+        return `${formattedHour}:${minutes.toString().padStart(2, '0')} ${ampm}`;
+    };
     return (
         <section className="bg-gradient-to-r from-orange-100 via-white to-orange-100 py-20 px-6 sm:px-12 lg:px-24" id='classes'>
             <div className="max-w-6xl mx-auto text-center">

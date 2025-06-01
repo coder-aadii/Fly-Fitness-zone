@@ -30,7 +30,7 @@ The application has been updated to use Cloudinary for storing media files (imag
 
 ### Automatic Cleanup
 
-Posts automatically expire after 36 hours using MongoDB's TTL index. To ensure Cloudinary resources are also cleaned up:
+Posts automatically expire after 24 hours using MongoDB's TTL index. To ensure Cloudinary resources are also cleaned up:
 
 1. A scheduled job runs every hour to clean up expired Cloudinary resources
 2. The job is managed by `node-cron` and configured in `utils/cleanupJob.js`

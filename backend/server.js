@@ -10,7 +10,14 @@ const adminRoutes = require('./routes/adminRoutes');
 const contactRoutes = require('./routes/contactRoutes');
 const postRoutes = require('./routes/postRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
+const trainerRoutes = require('./routes/trainerRoutes');
+const classScheduleRoutes = require('./routes/classScheduleRoutes');
+const galleryRoutes = require('./routes/galleryRoutes');
+const testimonialRoutes = require('./routes/testimonialRoutes');
+const pushNotificationRoutes = require('./routes/pushNotificationRoutes');
+const motivationalMessageRoutes = require('./routes/motivationalMessageRoutes');
 const { scheduleCleanupJob } = require('./utils/cleanupJob');
+const { scheduleMotivationalNotifications } = require('./utils/motivationalNotifications');
 const logger = require('./utils/logger');
 
 // Load environment variables
@@ -81,12 +88,21 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/contact', contactRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/trainers', trainerRoutes);
+app.use('/api/classes', classScheduleRoutes);
+app.use('/api/gallery', galleryRoutes);
+app.use('/api/testimonials', testimonialRoutes);
+app.use('/api/push-notifications', pushNotificationRoutes);
+app.use('/api/motivational-messages', motivationalMessageRoutes);
 
 mongoose.connect(process.env.MONGO_URI).then(() => {
     logger.info("MongoDB Connected");
     
     // Schedule the Cloudinary cleanup job
     scheduleCleanupJob();
+    
+    // Schedule motivational notifications
+    scheduleMotivationalNotifications();
     
     const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => logger.info(`Server running on port ${PORT}`));

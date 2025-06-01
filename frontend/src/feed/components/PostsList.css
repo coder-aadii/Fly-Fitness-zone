@@ -1,0 +1,50 @@
+.video-container {
+  position: relative;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.video-container video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  cursor: pointer;
+}
+
+/* Tap instruction - only shows briefly when video is first interacted with */
+.video-container .tap-instruction {
+  position: absolute;
+  bottom: 16px;
+  left: 16px;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  transform: translateY(10px);
+  pointer-events: none;
+}
+
+.video-container .tap-instruction.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Volume indicator */
+.video-container .volume-indicator {
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px;
+  border-radius: 50%;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.video-container:hover .volume-indicator {
+  opacity: 1;
+}

@@ -5,6 +5,50 @@ const fs = require('fs');
 const path = require('path');
 const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinaryUpload');
 const { createNotification } = require('./notificationController');
+const { trackNotificationEngagement } = require('../utils/motivationalNotifications');
+const webpush = require('web-push');
+const logger = require('../utils/logger');
+
+// Configure web push
+const vapidKeys = {
+    publicKey: process.env.VAPID_PUBLIC_KEY || 'BNbKwE3NUkGtPWeTDSu0w5yMtR9LHd9GVQzekEo-zCiwgNpux3eDTnxSLtgXxOXzQVfDHoCHWYbSrJIVcgd5QSo',
+    privateKey: process.env.VAPID_PRIVATE_KEY || 'TVe_nJBa0YQbfLiOIf7LpRFMvLPp4xOoXm_z9rgdgDo'
+};
+
+webpush.setVapidDetails(
+    'mailto:admin@flyfitness.com',
+    vapidKeys.publicKey,
+    vapidKeys.privateKey
+);
+
+// Helper function to send push notification
+const sendPushNotification = async (recipient, title, message, url = null, imageUrl = null) => {
+    try {
+        if (!recipient.pushSubscription) {
+            return false;
+        }
+
+        const payload = JSON.stringify({
+            title,
+            message,
+            url,
+            image: imageUrl,
+            timestamp: new Date().toISOString()
+        });
+
+        await webpush.sendNotification(recipient.pushSubscription, payload);
+        return true;
+    } catch (error) {
+        logger.error(`Error sending push notification to user ${recipient._id}:`, error);
+        
+        // If subscription is invalid, remove it
+        if (error.statusCode === 410) {
+            recipient.pushSubscription = null;
+            await recipient.save();
+        }
+        return false;
+    }
+};
 
 // Get all posts (with pagination)
 exports.getPosts = async (req, res) => {
@@ -72,8 +116,71 @@ exports.createPost = async (req, res) => {
         const post = new Post(postData);
         await post.save();
 
+        // Track if this post was created after receiving a motivational notification
+        await trackNotificationEngagement(userId, post.createdAt);
+
         // Populate user details before sending response
         await post.populate('user', 'name profileImage');
+
+        // Send notifications to all users about the new post
+        try {
+            // Get the user who created the post
+            const postCreator = await User.findById(userId, 'name profileImage');
+            
+            // Get all users except the creator
+            const users = await User.find({ 
+                _id: { $ne: userId },
+                suspended: false,
+                pushSubscription: { $exists: true, $ne: null }
+            });
+            
+            // Create notification content
+            const notificationTitle = `New post from ${postCreator.name}`;
+            let notificationContent = content ? 
+                `${content.substring(0, 50)}${content.length > 50 ? '...' : ''}` : 
+                'Shared a new post';
+                
+            if (postData.mediaType === 'image') {
+                notificationContent += ' with an image';
+            } else if (postData.mediaType === 'video') {
+                notificationContent += ' with a video';
+            }
+            
+            // Create in-app notifications for all users
+            const notificationPromises = users.map(async (user) => {
+                try {
+                    // Create in-app notification
+                    await createNotification(
+                        user._id,  // recipient
+                        userId,    // sender (post creator)
+                        'post',    // notification type
+                        `${postCreator.name} shared a new post`,
+                        post._id   // related post
+                    );
+                    
+                    // Send push notification if user has subscription
+                    if (user.pushSubscription) {
+                        await sendPushNotification(
+                            user,
+                            notificationTitle,
+                            notificationContent,
+                            `/feed`,  // URL to redirect to
+                            postData.media  // Image URL if available
+                        );
+                    }
+                } catch (notifError) {
+                    console.error(`Error sending notification to user ${user._id}:`, notifError);
+                    // Continue with other notifications even if one fails
+                }
+            });
+            
+            // Wait for all notifications to be processed
+            await Promise.all(notificationPromises);
+            
+        } catch (notifError) {
+            console.error('Error sending post notifications:', notifError);
+            // Continue even if notifications fail
+        }
 
         res.status(201).json(post);
     } catch (err) {
@@ -107,9 +214,11 @@ exports.likePost = async (req, res) => {
             if (post.user.toString() !== userId) {
                 // Get user name for notification content
                 const user = await User.findById(userId, 'name');
+                const postOwner = await User.findById(post.user);
                 const notificationContent = `${user.name} liked your post`;
                 
                 try {
+                    // Create in-app notification
                     await createNotification(
                         post.user, // recipient (post owner)
                         userId,    // sender (user who liked)
@@ -117,6 +226,17 @@ exports.likePost = async (req, res) => {
                         notificationContent,
                         postId     // related post
                     );
+                    
+                    // Send push notification if post owner has subscription
+                    if (postOwner && postOwner.pushSubscription) {
+                        await sendPushNotification(
+                            postOwner,
+                            'New Like',
+                            notificationContent,
+                            `/feed`,  // URL to redirect to
+                            null      // No image for like notifications
+                        );
+                    }
                 } catch (notifError) {
                     console.error('Error creating like notification:', notifError);
                     // Continue even if notification creation fails
@@ -178,9 +298,11 @@ exports.addComment = async (req, res) => {
         if (post.user.toString() !== userId) {
             // Get user name for notification content
             const user = await User.findById(userId, 'name');
+            const postOwner = await User.findById(post.user);
             const notificationContent = `${user.name} commented on your post: "${text.substring(0, 30)}${text.length > 30 ? '...' : ''}"`;
             
             try {
+                // Create in-app notification
                 await createNotification(
                     post.user, // recipient (post owner)
                     userId,    // sender (user who commented)
@@ -188,6 +310,17 @@ exports.addComment = async (req, res) => {
                     notificationContent,
                     postId     // related post
                 );
+                
+                // Send push notification if post owner has subscription
+                if (postOwner && postOwner.pushSubscription) {
+                    await sendPushNotification(
+                        postOwner,
+                        'New Comment',
+                        notificationContent,
+                        `/feed`,  // URL to redirect to
+                        null      // No image for comment notifications
+                    );
+                }
             } catch (notifError) {
                 console.error('Error creating comment notification:', notifError);
                 // Continue even if notification creation fails

@@ -109,6 +109,21 @@ const UserSchema = new mongoose.Schema({
     // Cloudinary fields for profile image
     cloudinaryId: {
         type: String
+    },
+    // Account status
+    suspended: {
+        type: Boolean,
+        default: false
+    },
+    suspensionReason: {
+        type: String
+    },
+    suspendedAt: {
+        type: Date
+    },
+    // Push notification subscription
+    pushSubscription: {
+        type: Object
     }
 }, {
     timestamps: true

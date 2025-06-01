@@ -68,7 +68,7 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **Community Interaction**: Share fitness achievements and updates
 - **Media Sharing**: Support for image uploads in posts
 - **Engagement Features**: Like and comment on community posts
-- **Temporary Content**: Posts automatically expire after 36 hours
+- **Temporary Content**: Posts automatically expire after 24 hours
 
 <div align="center">
   <img src="https://i.ibb.co/Qf7s3JN/social-feed.png" alt="Social Feed Screenshot" width="700"/>

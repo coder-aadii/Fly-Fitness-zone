@@ -18,7 +18,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1524594152303-9fd13543fe6e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1532844232339-7f8d53250a76?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/QRZcZgSgSHI',
     schedule: 'Mon, Wed, Fri: 7:00 - 8:00 AM, 8:15 - 9:15 AM and 6:15 - 7:15 PM',
     instructor: 'Ritesh Sontani / Jigyasa Bhatia'
   },
@@ -37,7 +36,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1599447292180-45fd84092ef4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1220&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/v7AYKMP6rOE',
     schedule: 'Mon, Wed, Fri: 7:00 - 8:00 AM and 6:15 - 7:15 PM',
     instructor: 'Aditya Aerpule'
   },
@@ -56,7 +54,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1510894347713-fc3ed6fdf539?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1573590330099-d6c7355ec595?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/4pKly2JojMw',
     schedule: 'Mon, Wed, Fri: 6:00 - 7:00 AM',
     instructor: 'Aditya Aerpule'
   },
@@ -75,7 +72,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1549060279-7e168fcee0c2?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1518611012118-696072aa579a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/XIeCMhNWFQQ',
     schedule: 'Tue: 7:00 - 8:00 AM, 8:15 - 9:15 AM and 6:15 - 7:15 PM',
     instructor: 'Aditya Aerpule / Ritesh Sontani / Jigyasa Bhatia'
   },
@@ -94,7 +90,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/U0bhE67HuDY',
     schedule: 'Thu: 7:00 - 8:00 AM, 8:15 - 9:15 AM and 6:15 - 7:15 PM (Alternative)',
     instructor: 'Aditya Aerpule / Ritesh Sontani / Jigyasa Bhatia'
   },
@@ -113,7 +108,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1597347316205-36f6c451902a?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80',
       'https://images.unsplash.com/photo-1599058917212-d750089bc07e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/oAPCPjnU1wA',
     schedule: 'Thu: 7:00 - 8:00 AM, 8:15 - 9:15 AM and 6:15 - 7:15 PM (Alternative)',
     instructor: 'Aditya Aerpule / Ritesh Sontani / Jigyasa Bhatia'
   },
@@ -132,7 +126,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1574680096145-d05b474e2155?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80',
       'https://images.unsplash.com/photo-1552674605-db6ffd4facb5?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1170&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/7dT4KHtMM-A',
     schedule: 'Sat: 6:00 - 8:00 AM',
     instructor: 'Aditya Aerpule / Ritesh Sontani / Jigyasa Bhatia'
   },
@@ -151,7 +144,6 @@ const offeringsData = [
       'https://images.unsplash.com/photo-1594882645126-14020914d58d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1185&q=80',
       'https://images.unsplash.com/photo-1551632436-cbf8dd35adfa?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1171&q=80'
     ],
-    videoUrl: 'https://www.youtube.com/embed/CBWQGb4LyAM',
     schedule: 'Sat: 6:00 - 8:00 AM (Weather Permitting)',
     instructor: 'Aditya Aerpule / Ritesh Sontani / Jigyasa Bhatia'
   }
@@ -272,7 +264,7 @@ const Offerings = () => {
                 Auto-rotation paused for 1 minute
               </div>
             )}
-            <div className="flex space-x-1 min-w-max p-1 bg-gray-100 rounded-xl">
+            <div className="flex space-x-1 min-w-max p-1 bg-gray-100 rounded-xl md:justify-center">
             {offeringsData.map((offering, index) => (
               <button
                 key={offering.id}
@@ -446,39 +438,7 @@ const Offerings = () => {
                   >
                     Book a Session
                   </a>
-                  
                 </div>
-              </div>
-            </div>
-
-            {/* Video Section */}
-            <div className="p-6 sm:p-8 border-t border-gray-100">
-              <h4 
-                className="text-xl font-semibold text-gray-900 mb-4 transition-all duration-300"
-                style={{
-                  opacity: isLoaded ? 1 : 0,
-                  transform: isLoaded ? 'translateY(0)' : 'translateY(20px)',
-                  transitionDelay: '0.7s'
-                }}
-              >
-                Watch {activeOffering.title} in Action
-              </h4>
-              
-              <div 
-                className="video-container rounded-lg overflow-hidden transition-all duration-300"
-                style={{
-                  opacity: isLoaded ? 1 : 0,
-                  transform: isLoaded ? 'translateY(0)' : 'translateY(20px)',
-                  transitionDelay: '0.8s'
-                }}
-              >
-                <iframe 
-                  src={activeOffering.videoUrl} 
-                  title={`${activeOffering.title} video`} 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowFullScreen
-                  className="w-full h-full"
-                ></iframe>
               </div>
             </div>
           </div>

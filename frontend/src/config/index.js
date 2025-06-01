@@ -31,6 +31,29 @@ export const ENDPOINTS = {
     ADMIN_USERS: `${API_URL}/api/admin/users`,
     ADMIN_STATS: `${API_URL}/api/admin/stats`,
     
+    // Trainer endpoints
+    ADMIN_TRAINERS: `${API_URL}/api/trainers`,
+    ADMIN_TRAINER_DETAIL: (id) => `${API_URL}/api/trainers/${id}`,
+    
+    // Class Schedule endpoints
+    ADMIN_CLASSES: `${API_URL}/api/classes`,
+    ADMIN_CLASS_DETAIL: (id) => `${API_URL}/api/classes/${id}`,
+    
+    // Gallery endpoints
+    ADMIN_GALLERY: `${API_URL}/api/gallery`,
+    ADMIN_GALLERY_UPLOAD: `${API_URL}/api/gallery/upload`,
+    
+    // Testimonial endpoints
+    ADMIN_TESTIMONIALS: `${API_URL}/api/testimonials`,
+    
+    // Push Notification endpoints
+    PUSH_NOTIFICATION_VAPID_KEY: `${API_URL}/api/push-notifications/vapid-public-key`,
+    PUSH_NOTIFICATION_SUBSCRIBE: `${API_URL}/api/push-notifications/subscribe`,
+    PUSH_NOTIFICATION_UNSUBSCRIBE: `${API_URL}/api/push-notifications/unsubscribe`,
+    ADMIN_NOTIFICATIONS: `${API_URL}/api/push-notifications`,
+    ADMIN_NOTIFICATION_DETAIL: (id) => `${API_URL}/api/push-notifications/${id}`,
+    ADMIN_SEND_NOTIFICATION: `${API_URL}/api/push-notifications/send`,
+    
     // Feed endpoints
     FEED_POSTS: `${API_URL}/api/posts`,
     CREATE_POST: `${API_URL}/api/posts`,

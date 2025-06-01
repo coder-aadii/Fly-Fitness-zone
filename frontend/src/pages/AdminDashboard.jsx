@@ -1,7 +1,37 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { FaUsers, FaCalendarAlt, FaMoneyBillWave, FaSignOutAlt } from 'react-icons/fa';
+import { 
+    FaUsers, 
+    FaCalendarAlt, 
+    FaSignOutAlt, 
+    FaTachometerAlt, 
+    FaNewspaper, 
+    FaDumbbell, 
+    FaImages, 
+    FaComments, 
+    FaEnvelope, 
+    FaBell,
+    FaBars,
+    FaTimes,
+    FaHome,
+    FaLock,
+    FaBullhorn
+} from 'react-icons/fa';
 import { ENDPOINTS } from '../config';
+
+// Import admin panel components
+import Dashboard from '../components/admin/Dashboard';
+import UserManagement from '../components/admin/UserManagement';
+import PostModeration from '../components/admin/PostModeration';
+import TrainerManagement from '../components/admin/TrainerManagement';
+import ClassSchedule from '../components/admin/ClassSchedule';
+import GalleryManagement from '../components/admin/GalleryManagement';
+import TestimonialModeration from '../components/admin/TestimonialModeration';
+import ContactMessages from '../components/admin/ContactMessages';
+import PushNotifications from '../components/admin/PushNotifications';
+import LandingPageContent from '../components/admin/LandingPageContent';
+import ChangePassword from '../components/admin/ChangePassword';
+import MotivationalMessages from '../components/admin/MotivationalMessages';
 
 const AdminDashboard = () => {
     const [loading, setLoading] = useState(true);
@@ -13,6 +43,8 @@ const AdminDashboard = () => {
         totalRevenue: 0
     });
     const [users, setUsers] = useState([]);
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [sidebarOpen, setSidebarOpen] = useState(true);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -142,6 +174,38 @@ const AdminDashboard = () => {
         navigate('/login');
     };
 
+    // Function to render the active component based on the selected tab
+    const renderActiveComponent = () => {
+        switch (activeTab) {
+            case 'dashboard':
+                return <Dashboard stats={stats} />;
+            case 'landing':
+                return <LandingPageContent />;
+            case 'users':
+                return <UserManagement users={users} />;
+            case 'posts':
+                return <PostModeration />;
+            case 'trainers':
+                return <TrainerManagement />;
+            case 'classes':
+                return <ClassSchedule />;
+            case 'gallery':
+                return <GalleryManagement />;
+            case 'testimonials':
+                return <TestimonialModeration />;
+            case 'contacts':
+                return <ContactMessages />;
+            case 'notifications':
+                return <PushNotifications />;
+            case 'motivational':
+                return <MotivationalMessages />;
+            case 'password':
+                return <ChangePassword />;
+            default:
+                return <Dashboard stats={stats} />;
+        }
+    };
+
     if (loading) {
         return (
             <div className="flex justify-center items-center h-screen">
@@ -165,11 +229,17 @@ const AdminDashboard = () => {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            {/* Admin Header */}
-            <header className="bg-orange-600 text-white shadow-md">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="min-h-screen bg-gray-100 flex flex-col">
+            {/* Admin Header - Fixed at the top with high z-index */}
+            <header className="bg-orange-600 text-white shadow-md fixed top-0 left-0 right-0 z-1000">
+                <div className="max-w-full px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
                     <div className="flex items-center">
+                        <button 
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className="mr-4 text-white focus:outline-none lg:hidden"
+                        >
+                            {sidebarOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+                        </button>
                         <Link to="/admin-dashboard" className="flex items-center mr-6">
                             <img 
                                 src="/logo192.png" 
@@ -191,127 +261,126 @@ const AdminDashboard = () => {
                 </div>
             </header>
 
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Stats Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-md p-6 flex items-center">
-                        <div className="rounded-full bg-blue-100 p-3 mr-4">
-                            <FaUsers className="text-blue-600 text-xl" />
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-sm">Total Users</p>
-                            <p className="text-2xl font-bold">{stats.totalUsers || 0}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6 flex items-center">
-                        <div className="rounded-full bg-green-100 p-3 mr-4">
-                            <FaUsers className="text-green-600 text-xl" />
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-sm">Active Users</p>
-                            <p className="text-2xl font-bold">{stats.activeUsers || 0}</p>
-                            <p className="text-xs text-gray-500">Verified accounts</p>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6 flex items-center">
-                        <div className="rounded-full bg-yellow-100 p-3 mr-4">
-                            <FaCalendarAlt className="text-yellow-600 text-xl" />
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-sm">Pending Payments</p>
-                            <p className="text-2xl font-bold">{stats.pendingPayments || 0}</p>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6 flex items-center">
-                        <div className="rounded-full bg-purple-100 p-3 mr-4">
-                            <FaMoneyBillWave className="text-purple-600 text-xl" />
-                        </div>
-                        <div>
-                            <p className="text-gray-500 text-sm">Total Revenue</p>
-                            <p className="text-2xl font-bold">₹{stats.totalRevenue || 0}</p>
-                        </div>
-                    </div>
-                </div>
+            {/* Add a spacer to account for the fixed header */}
+            <div className="h-16"></div>
+            
+            <div className="flex flex-1 overflow-hidden">
+                {/* Mobile overlay when sidebar is open */}
+                {sidebarOpen && (
+                    <div 
+                        className="fixed inset-0 bg-black bg-opacity-50 z-990 lg:hidden"
+                        onClick={() => setSidebarOpen(false)}
+                    ></div>
+                )}
                 
-                {/* Additional Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">New Users (30 days)</h3>
-                        <p className="text-2xl font-bold text-blue-600">{stats.newUsersLast30Days || 0}</p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Pending Verification</h3>
-                        <p className="text-2xl font-bold text-yellow-600">{stats.pendingVerification || 0}</p>
-                    </div>
-                    
-                    <div className="bg-white rounded-lg shadow-md p-6">
-                        <h3 className="font-semibold text-gray-800 mb-2">Complete Profiles</h3>
-                        <p className="text-2xl font-bold text-green-600">{stats.usersWithCompleteProfile || 0}</p>
-                    </div>
-                </div>
+                {/* Sidebar - Fixed on the left */}
+                <aside className={`bg-gray-800 text-white w-64 flex-shrink-0 fixed top-16 bottom-0 left-0 overflow-y-auto z-995 ${sidebarOpen ? 'block' : 'hidden'} lg:block transition-all duration-300 ease-in-out`}>
+                    <nav className="mt-5 px-2">
+                        <div className="space-y-1">
+                            <button 
+                                onClick={() => setActiveTab('dashboard')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'dashboard' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaTachometerAlt className="mr-3 h-5 w-5" />
+                                Dashboard
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('landing')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'landing' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaHome className="mr-3 h-5 w-5" />
+                                Landing Page Content
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('users')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'users' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaUsers className="mr-3 h-5 w-5" />
+                                User Management
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('posts')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'posts' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaNewspaper className="mr-3 h-5 w-5" />
+                                Post Moderation
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('trainers')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'trainers' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaDumbbell className="mr-3 h-5 w-5" />
+                                Trainer Management
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('classes')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'classes' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaCalendarAlt className="mr-3 h-5 w-5" />
+                                Class Schedule
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('gallery')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'gallery' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaImages className="mr-3 h-5 w-5" />
+                                Gallery Management
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('testimonials')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'testimonials' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaComments className="mr-3 h-5 w-5" />
+                                Testimonials
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('contacts')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'contacts' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaEnvelope className="mr-3 h-5 w-5" />
+                                Contact Messages
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('notifications')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'notifications' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaBell className="mr-3 h-5 w-5" />
+                                Push Notifications
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('motivational')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'motivational' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaBullhorn className="mr-3 h-5 w-5" />
+                                Motivational Messages
+                            </button>
+                            
+                            <button 
+                                onClick={() => setActiveTab('password')}
+                                className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-md ${activeTab === 'password' ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white'}`}
+                            >
+                                <FaLock className="mr-3 h-5 w-5" />
+                                Change Password
+                            </button>
+                        </div>
+                    </nav>
+                </aside>
 
-                {/* Users Table */}
-                <div className="bg-white rounded-lg shadow-md overflow-hidden">
-                    <div className="px-6 py-4 border-b border-gray-200">
-                        <h2 className="text-lg font-semibold text-gray-800">Registered Users</h2>
-                    </div>
-                    <div className="overflow-x-auto">
-                        <table className="min-w-full divide-y divide-gray-200">
-                            <thead className="bg-gray-50">
-                                <tr>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Join Date</th>
-                                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Profile</th>
-                                </tr>
-                            </thead>
-                            <tbody className="bg-white divide-y divide-gray-200">
-                                {users.length > 0 ? (
-                                    users.map(user => (
-                                        <tr key={user.id}>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <div className="text-sm text-gray-500">{user.email}</div>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                    ${user.status === 'Active' ? 'bg-green-100 text-green-800' : 
-                                                    user.status === 'Inactive' ? 'bg-red-100 text-red-800' : 
-                                                    'bg-yellow-100 text-yellow-800'}`}>
-                                                    {user.status}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {new Date(user.joiningDate).toLocaleDateString()}
-                                            </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                {user.profileComplete ? (
-                                                    <span className="text-green-600">Complete</span>
-                                                ) : (
-                                                    <span className="text-red-600">Incomplete</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
-                                            No users found
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </main>
+                {/* Main content - Add left margin to account for the fixed sidebar */}
+                <main className="flex-1 overflow-auto p-6 ml-0 lg:ml-64 mt-0 pb-16">
+                    {renderActiveComponent()}
+                </main>
+            </div>
         </div>
     );
 };

@@ -4,7 +4,7 @@ import { FaUser, FaLock, FaEnvelope, FaCamera, FaCheck, FaExclamationTriangle } 
 import Loader from '../components/Loader';
 import { ENDPOINTS, getImageUrl } from '../config';
 import { useAuth } from '../context/AuthContext';
-import FeedNavbar from '../feed/components/FeedNavbar';
+import FeedLayout from '../feed/components/FeedLayout';
 
 const UserSettings = () => {
     const [user, setUser] = useState(null);
@@ -285,9 +285,7 @@ const UserSettings = () => {
     );
 
     return (
-        <>
-            <FeedNavbar user={user} />
-            <div className="max-w-5xl mx-auto p-6">
+        <FeedLayout>
                 <h1 className="text-2xl font-bold text-gray-800 mb-6">Account Settings</h1>
                 
                 {/* Tabs */}
@@ -545,8 +543,7 @@ const UserSettings = () => {
                         </form>
                     </div>
                 )}
-            </div>
-        </>
+        </FeedLayout>
     );
 };
 

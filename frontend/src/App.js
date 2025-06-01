@@ -15,6 +15,9 @@ import VerifyOTP from './pages/VerifyOTP';
 import Album from './pages/Album';
 import UserDashboard from './pages/UserDashboard';
 import UserSettings from './pages/UserSettings';
+import Workouts from './pages/Workouts';
+import Schedule from './pages/Schedule';
+import Progress from './pages/Progress';
 import AdminDashboard from './pages/AdminDashboard';
 import FeedPage from './feed/FeedPage';
 import NotFound from './pages/NotFound';
@@ -55,6 +58,9 @@ function App() {
         <Route path="/album" element={<Album />} />
         <Route path="/UserDashboard" element={<UserDashboard />} />
         <Route path="/UserSettings" element={<UserSettings />} />
+        <Route path="/workouts" element={<Workouts />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/progress" element={<Progress />} />
         <Route path="/feed" element={<FeedPage />} />
         {/* <Route path="/loader-test" element={<LoaderTest />} /> */}
         

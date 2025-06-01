@@ -76,50 +76,79 @@ const Header = () => {
                         <a href="#contact" onClick={(e) => handleAnchorClick(e, "#contact")} className="hover:text-red-600 transition">Contact Us</a>
                         
                         {isLoggedIn ? (
-                            <div className="relative" ref={userMenuRef}>
-                                <div className="flex items-center space-x-2">
-                                    <Link to="/feed" className="hover:text-red-600 transition">News Feed</Link>
-                                    <button 
-                                        onClick={() => setShowUserMenu(!showUserMenu)}
-                                        className="hover:text-red-600 transition flex items-center"
-                                    >
-                                        {userData && userData.profileImage ? (
-                                            <img 
-                                                src={getImageUrl(userData.profileImage)}
-                                                alt="Profile" 
-                                                className="h-6 w-6 rounded-full object-cover mr-1"
-                                            />
-                                        ) : null}
-                                        <span className="text-sm font-medium">▼</span>
-                                    </button>
-                                </div>
-                                
-                                {showUserMenu && (
-                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1">
-                                        <Link 
-                                            to="/UserDashboard" 
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setShowUserMenu(false)}
+                            <>
+                                <div className="relative" ref={userMenuRef}>
+                                    <div className="flex items-center space-x-2">
+                                        {/* Show News Feed link only for regular users, not for admins */}
+                                        {/* {userData && userData.role !== 'admin' && (
+                                            <Link to="/feed" className="hover:text-red-600 transition font-medium text-orange-600">News Feed</Link>
+                                        )} */}
+                                        <button 
+                                            onClick={() => setShowUserMenu(!showUserMenu)}
+                                            className="hover:text-red-600 transition flex items-center"
                                         >
-                                            Dashboard
-                                        </Link>
-                                        <Link 
-                                            to="/UserSettings" 
-                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                            onClick={() => setShowUserMenu(false)}
-                                        >
-                                            Settings
-                                        </Link>
-                                        <button
-                                            onClick={handleLogout}
-                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                                        >
-                                            <LogOut className="inline mr-2 h-4 w-4" />
-                                            Sign out
+                                            {userData && userData.profileImage ? (
+                                                <img 
+                                                    src={getImageUrl(userData.profileImage)}
+                                                    alt="Profile" 
+                                                    className="h-6 w-6 rounded-full object-cover mr-1"
+                                                />
+                                            ) : null}
+                                            <span className="text-sm font-medium">
+                                                {userData ? (userData.name || userData.email || 'Account') : 'Account'} ▼
+                                            </span>
                                         </button>
                                     </div>
-                                )}
-                            </div>
+                                    
+                                    {showUserMenu && (
+                                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1">
+                                            {/* For admin users */}
+                                            {userData && userData.role === 'admin' ? (
+                                                <>
+                                                    <Link 
+                                                        to="/admin-dashboard" 
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        onClick={() => setShowUserMenu(false)}
+                                                    >
+                                                        Admin Dashboard
+                                                    </Link>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <Link 
+                                                        to="/feed" 
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        onClick={() => setShowUserMenu(false)}
+                                                    >
+                                                        News Feed
+                                                    </Link>
+                                                    <Link 
+                                                        to="/UserDashboard" 
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        onClick={() => setShowUserMenu(false)}
+                                                    >
+                                                        Dashboard
+                                                    </Link>
+                                                    <Link 
+                                                        to="/UserSettings" 
+                                                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                                        onClick={() => setShowUserMenu(false)}
+                                                    >
+                                                        Settings
+                                                    </Link>
+                                                </>
+                                            )}
+                                            <button
+                                                onClick={handleLogout}
+                                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            >
+                                                <LogOut className="inline mr-2 h-4 w-4" />
+                                                Sign out
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </>
                         ) : (
                             <Link to="/login" className="hover:text-red-600 transition">Login</Link>
                         )}
@@ -146,9 +175,42 @@ const Header = () => {
                     
                     {isLoggedIn ? (
                         <>
-                            <Link to="/feed" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">News Feed</Link>
-                            <Link to="/UserDashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Dashboard</Link>
-                            <Link to="/UserSettings" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Settings</Link>
+                            {/* For admin users */}
+                            {userData && userData.role === 'admin' ? (
+                                <>
+                                    <Link 
+                                        to="/admin-dashboard" 
+                                        onClick={() => setMenuOpen(false)} 
+                                        className="block py-2 font-medium text-orange-600 hover:text-red-600"
+                                    >
+                                        Admin Dashboard
+                                    </Link>
+                                </>
+                            ) : (
+                                <>
+                                    <Link 
+                                        to="/feed" 
+                                        onClick={() => setMenuOpen(false)} 
+                                        className="block py-2 font-medium text-orange-600 hover:text-red-600"
+                                    >
+                                        News Feed
+                                    </Link>
+                                    <Link 
+                                        to="/UserDashboard" 
+                                        onClick={() => setMenuOpen(false)} 
+                                        className="block py-2 text-gray-700 hover:text-red-600"
+                                    >
+                                        Dashboard
+                                    </Link>
+                                    <Link 
+                                        to="/UserSettings" 
+                                        onClick={() => setMenuOpen(false)} 
+                                        className="block py-2 text-gray-700 hover:text-red-600"
+                                    >
+                                        Settings
+                                    </Link>
+                                </>
+                            )}
                             <button 
                                 onClick={() => {
                                     handleLogout();

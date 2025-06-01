@@ -21,6 +21,16 @@ lib-cov
 coverage/
 *.lcov
 
+# Test files and directories
+**/__tests__/
+**/jest.config.js
+**/setup.js
+**/test-utils.js
+**/mocks/
+**/*.test.js
+**/*.spec.js
+README-TESTING.md
+
 # Build output
 dist/
 build/

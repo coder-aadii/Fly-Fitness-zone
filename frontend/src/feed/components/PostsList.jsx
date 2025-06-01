@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { FaHeart, FaRegHeart, FaComment, FaShare, FaEllipsisH, FaTrash, FaEllipsisV } from 'react-icons/fa';
+import React, { useState, useRef, useEffect } from 'react';
+import { FaHeart, FaRegHeart, FaComment, FaShare, FaEllipsisH, FaTrash, FaEllipsisV, FaWhatsapp, FaFacebook, FaTwitter, FaLink, FaTimes, FaInstagram, FaVolumeUp, FaVolumeMute } from 'react-icons/fa';
 import { getImageUrl, ENDPOINTS } from '../../config';
 import Loader from '../../components/Loader';
+import './PostsList.css';
 
 const PostsList = ({ posts, currentUser }) => {
   if (!posts || posts.length === 0) {
@@ -30,8 +31,63 @@ const PostItem = ({ post, currentUser }) => {
   const [showOptions, setShowOptions] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [activeCommentMenu, setActiveCommentMenu] = useState(null);
+  const [showShareOptions, setShowShareOptions] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [showInstruction, setShowInstruction] = useState(false);
+  const shareMenuRef = useRef(null);
+  const videoRef = useRef(null);
+  const postRef = useRef(null);
 
-  // Add click outside handler for comment option menus
+  // Add Intersection Observer for video autoplay
+  useEffect(() => {
+    // Only set up observer if this post has a video
+    if (post.mediaType === 'video' && videoRef.current) {
+      // Store a reference to the video element that won't change
+      const videoElement = videoRef.current;
+      
+      const options = {
+        root: null, // Use the viewport as the root
+        rootMargin: '0px',
+        threshold: 0.5 // 50% of the video must be visible
+      };
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            // Video is visible, play it
+            if (videoElement && videoElement.paused) {
+              videoElement.play().catch(e => {
+                // Auto-play might be blocked by browser settings
+                console.log('Auto-play prevented:', e);
+              });
+              
+              // Show instruction briefly when video first comes into view
+              setShowInstruction(true);
+              setTimeout(() => {
+                setShowInstruction(false);
+              }, 1500);
+            }
+          } else {
+            // Video is not visible, pause it
+            if (videoElement && !videoElement.paused) {
+              videoElement.pause();
+            }
+          }
+        });
+      }, options);
+
+      // Start observing the video element
+      observer.observe(videoElement);
+
+      // Clean up the observer when component unmounts
+      return () => {
+        // Use the stored reference in the cleanup function
+        observer.unobserve(videoElement);
+      };
+    }
+  }, [post.mediaType]);
+
+  // Add click outside handler for comment option menus and share popup
   React.useEffect(() => {
     const handleClickOutside = (event) => {
       if (activeCommentMenu && !event.target.closest(`#comment-menu-container-${activeCommentMenu}`)) {
@@ -46,13 +102,30 @@ const PostItem = ({ post, currentUser }) => {
       if (showOptions && !event.target.closest('.post-options-container')) {
         setShowOptions(false);
       }
+
+      // Handle share options menu
+      if (showShareOptions) {
+        const sharePopup = document.getElementById('share-options-popup');
+        const isClickInsideShareButton = shareMenuRef.current && shareMenuRef.current.contains(event.target);
+        const isClickInsideSharePopup = sharePopup && sharePopup.contains(event.target);
+        
+        if (!isClickInsideShareButton && !isClickInsideSharePopup) {
+          setShowShareOptions(false);
+        }
+      }
     };
 
+    // Add event listener for clicks
     document.addEventListener('mousedown', handleClickOutside);
+    
+    // Add event listener for touch events to handle mobile better
+    document.addEventListener('touchstart', handleClickOutside);
+    
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [activeCommentMenu, showOptions]);
+  }, [activeCommentMenu, showOptions, showShareOptions]);
 
   // Function to toggle comment menu
   const toggleCommentMenu = (commentId) => {
@@ -72,10 +145,10 @@ const PostItem = ({ post, currentUser }) => {
     }
   };
 
-  // Calculate time remaining before post expires (36 hours from creation)
+  // Calculate time remaining before post expires (24 hours from creation)
   const calculateTimeRemaining = () => {
     const createdAt = new Date(post.createdAt);
-    const expiresAt = new Date(createdAt.getTime() + 36 * 60 * 60 * 1000); // 36 hours in milliseconds
+    const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000); // 24 hours in milliseconds
     const now = new Date();
     
     const timeRemaining = expiresAt - now;
@@ -179,6 +252,59 @@ const PostItem = ({ post, currentUser }) => {
     }
   };
 
+  const handleShare = (platform) => {
+    // Get the base URL of the application
+    const baseUrl = window.location.origin;
+    
+    // Create a shareable link to this post
+    const postUrl = `${baseUrl}/post/${post._id}`;
+    
+    // Share text
+    const shareText = `Check out this post from Fly Fitness Zone: ${post.content?.substring(0, 50)}${post.content?.length > 50 ? '...' : ''}`;
+    
+    let shareUrl;
+    
+    switch (platform) {
+      case 'whatsapp':
+        shareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText + ' ' + postUrl)}`;
+        break;
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(postUrl)}&quote=${encodeURIComponent(shareText)}`;
+        break;
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(postUrl)}`;
+        break;
+      case 'instagram':
+        // Instagram doesn't have a direct share URL like other platforms
+        // We'll copy the link to clipboard and show instructions
+        navigator.clipboard.writeText(postUrl)
+          .then(() => {
+            alert('Link copied to clipboard! Open Instagram and paste in your story or direct message.');
+          })
+          .catch(err => {
+            console.error('Failed to copy link: ', err);
+          });
+        setShowShareOptions(false);
+        return;
+      case 'copy':
+        navigator.clipboard.writeText(postUrl)
+          .then(() => {
+            alert('Link copied to clipboard!');
+          })
+          .catch(err => {
+            console.error('Failed to copy link: ', err);
+          });
+        setShowShareOptions(false);
+        return;
+      default:
+        return;
+    }
+    
+    // Open share URL in a new window
+    window.open(shareUrl, '_blank', 'width=600,height=400');
+    setShowShareOptions(false);
+  };
+
   const handleDeletePost = async () => {
     if (!window.confirm('Are you sure you want to delete this post?')) {
       return;
@@ -239,7 +365,7 @@ const PostItem = ({ post, currentUser }) => {
   const isOwnPost = post.user?._id === currentUser?._id;
 
   return (
-    <div id={`post-${post._id}`} className="bg-white rounded-lg shadow">
+    <div id={`post-${post._id}`} ref={postRef} className="bg-white rounded-lg shadow">
       {/* Post header */}
       <div className="p-4 flex justify-between items-center">
         <div className="flex items-center space-x-3">
@@ -277,7 +403,7 @@ const PostItem = ({ post, currentUser }) => {
           </button>
           
           {showOptions && (
-            <div className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg z-10">
+            <div className="absolute right-0 mt-1 w-48 max-w-[calc(100vw-2rem)] bg-white rounded-md shadow-lg z-10">
               {isOwnPost && (
                 <button
                   onClick={handleDeletePost}
@@ -313,13 +439,36 @@ const PostItem = ({ post, currentUser }) => {
               src={getImageUrl(post.media)} 
               alt="Post" 
               className="w-full max-h-[500px] object-contain bg-black"
+              style={{ maxWidth: '100%' }}
             />
           ) : post.mediaType === 'video' ? (
-            <video 
-              src={getImageUrl(post.media)} 
-              controls 
-              className="w-full max-h-[500px]"
-            />
+            <div className="video-container relative group">
+              <video 
+                ref={videoRef}
+                src={getImageUrl(post.media)} 
+                className="w-full max-h-[500px]"
+                style={{ maxWidth: '100%' }}
+                loop
+                muted={isMuted}
+                playsInline
+                onClick={() => {
+                  // Toggle mute on click
+                  setIsMuted(!isMuted);
+                  
+                  // Show instruction briefly
+                  setShowInstruction(true);
+                  setTimeout(() => {
+                    setShowInstruction(false);
+                  }, 1500); // Hide after 1.5 seconds
+                }}
+              />
+              <div className={`tap-instruction pointer-events-none ${showInstruction ? 'show' : ''}`}>
+                {isMuted ? 'Sound off' : 'Sound on'}
+              </div>
+              <div className="volume-indicator pointer-events-none" onClick={(e) => e.stopPropagation()}>
+                {isMuted ? <FaVolumeMute size={16} /> : <FaVolumeUp size={16} />}
+              </div>
+            </div>
           ) : null}
         </div>
       )}
@@ -352,17 +501,80 @@ const PostItem = ({ post, currentUser }) => {
           <span>Comment</span>
         </button>
         
-        <button className="flex items-center space-x-1 text-gray-500 hover:text-green-500">
-          <FaShare />
-          <span>Share</span>
-        </button>
+        <div className="relative" ref={shareMenuRef}>
+          <button 
+            onClick={() => setShowShareOptions(!showShareOptions)}
+            className="flex items-center space-x-1 text-gray-500 hover:text-green-500"
+          >
+            <FaShare />
+            <span>Share</span>
+          </button>
+          
+          {showShareOptions && (
+            <div id="share-options-popup" className="absolute top-full mt-2 right-0 bg-white rounded-lg shadow-lg p-3 z-20 w-48 max-w-[calc(100vw-2rem)]">
+              <div className="flex justify-between items-center mb-2">
+                <h4 className="font-medium text-gray-700">Share to</h4>
+                <button 
+                  onClick={() => setShowShareOptions(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <FaTimes size={14} />
+                </button>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2">
+                <button
+                  onClick={() => handleShare('whatsapp')}
+                  className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <FaWhatsapp className="text-green-500 text-xl mb-1" />
+                  <span className="text-xs">WhatsApp</span>
+                </button>
+                
+                <button
+                  onClick={() => handleShare('facebook')}
+                  className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <FaFacebook className="text-blue-600 text-xl mb-1" />
+                  <span className="text-xs">Facebook</span>
+                </button>
+                
+                <button
+                  onClick={() => handleShare('instagram')}
+                  className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <FaInstagram className="text-pink-500 text-xl mb-1" />
+                  <span className="text-xs">Instagram</span>
+                </button>
+                
+                <button
+                  onClick={() => handleShare('twitter')}
+                  className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <FaTwitter className="text-blue-400 text-xl mb-1" />
+                  <span className="text-xs">Twitter</span>
+                </button>
+                
+                <button
+                  onClick={() => handleShare('copy')}
+                  className="flex flex-col items-center justify-center p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <FaLink className="text-gray-500 text-xl mb-1" />
+                  <span className="text-xs">Copy Link</span>
+                </button>
+                
+                <div></div> {/* Empty div for grid alignment */}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
       
       {/* Comments section */}
       {showComments && (
         <div className="px-4 py-3 border-t">
           {/* Comment form */}
-          <form onSubmit={handleAddComment} className="flex items-center space-x-2 mb-3">
+          <form onSubmit={handleAddComment} className="flex items-center space-x-2 mb-3 flex-wrap sm:flex-nowrap">
             <div className="h-8 w-8 rounded-full overflow-hidden">
               {currentUser?.profileImage ? (
                 <img 
@@ -447,7 +659,7 @@ const PostItem = ({ post, currentUser }) => {
                               </button>
                               <div 
                                 id={`comment-options-${comment._id}`}
-                                className="absolute right-0 mt-1 w-32 bg-white rounded-md shadow-lg z-10 hidden"
+                                className="absolute right-0 mt-1 w-32 max-w-[calc(100vw-3rem)] bg-white rounded-md shadow-lg z-10 hidden"
                               >
                                 <button
                                   onClick={() => handleDeleteComment(comment._id)}

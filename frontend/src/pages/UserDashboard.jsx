@@ -7,7 +7,7 @@ import FeesDueCard from '../components/dashboard/FeesDueCard';
 import ProgressTracker from '../components/dashboard/ProgressTracker';
 import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
-import FeedNavbar from '../feed/components/FeedNavbar';
+import FeedLayout from '../feed/components/FeedLayout';
 
 const UserDashboard = () => {
     const [user, setUser] = useState(null);
@@ -156,28 +156,25 @@ const UserDashboard = () => {
     );
 
     return (
-        <>
-            <FeedNavbar user={user} />
-            <div className="max-w-5xl mx-auto p-6">
-                <WelcomeBanner userName={user.name} onUpdateClick={handleUpdateClick} />
-                <UpdateProfileModal
-                    isOpen={modalOpen}
-                    onClose={handleCloseModal}
-                    profile={user.profile}
-                    onSave={handleSaveProfile}
-                />
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
-                    <ProfileCard profile={user.profile} />
-                    <FeesDueCard feesDueDate={user.profile.feesDueDate} />
-                </div>
-                <div className="mt-6">
-                    <ProgressTracker
-                        weightHistory={user.profile.weightHistory}
-                        shortTermGoal={user.profile.shortTermGoal}
-                    />
-                </div>
+        <FeedLayout>
+            <WelcomeBanner userName={user.name} onUpdateClick={handleUpdateClick} />
+            <UpdateProfileModal
+                isOpen={modalOpen}
+                onClose={handleCloseModal}
+                profile={user.profile}
+                onSave={handleSaveProfile}
+            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                <ProfileCard profile={user.profile} />
+                <FeesDueCard feesDueDate={user.profile.feesDueDate} />
             </div>
-        </>
+            <div className="mt-6">
+                <ProgressTracker
+                    weightHistory={user.profile.weightHistory}
+                    shortTermGoal={user.profile.shortTermGoal}
+                />
+            </div>
+        </FeedLayout>
     );
 };
 

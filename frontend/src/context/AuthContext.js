@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
+import { autoSubscribeToPushNotifications } from '../services/autoPushNotificationService';
 
 // Create the auth context
 const AuthContext = createContext();
@@ -16,7 +17,7 @@ export const AuthProvider = ({ children }) => {
 
   // Check authentication status on mount and when localStorage changes
   useEffect(() => {
-    const checkAuthStatus = () => {
+    const checkAuthStatus = async () => {
       const token = localStorage.getItem('token');
       const userDataString = localStorage.getItem('userData');
       
@@ -24,7 +25,16 @@ export const AuthProvider = ({ children }) => {
         setIsLoggedIn(true);
         if (userDataString) {
           try {
-            setUserData(JSON.parse(userDataString));
+            const parsedUserData = JSON.parse(userDataString);
+            setUserData(parsedUserData);
+            
+            // Try to subscribe to push notifications if the user is already logged in
+            try {
+              await autoSubscribeToPushNotifications();
+            } catch (error) {
+              console.error('Error subscribing to push notifications:', error);
+              // Continue even if push notification subscription fails
+            }
           } catch (error) {
             console.error('Error parsing user data:', error);
             setUserData(null);
@@ -58,12 +68,20 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   // Login function
-  const login = (token, user) => {
+  const login = async (token, user) => {
     localStorage.setItem('token', token);
     localStorage.setItem('userData', JSON.stringify(user));
     setIsLoggedIn(true);
     setUserData(user);
     window.dispatchEvent(new Event('loginStatusChanged'));
+    
+    // Automatically subscribe to push notifications
+    try {
+      await autoSubscribeToPushNotifications();
+    } catch (error) {
+      console.error('Error subscribing to push notifications:', error);
+      // Continue with login even if push notification subscription fails
+    }
   };
 
   // Logout function

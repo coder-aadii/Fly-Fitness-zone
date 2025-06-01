@@ -114,24 +114,52 @@ const FeedNavbar = ({ user }) => {
         return <span className="text-green-500 mr-2">👤</span>;
       case 'achievement':
         return <span className="text-yellow-500 mr-2">🏆</span>;
+      case 'post':
+        return <span className="text-purple-500 mr-2">📱</span>;
       default:
         return <span className="text-gray-500 mr-2">📢</span>;
     }
   };
 
+  // State to track scroll position
+  const [scrolled, setScrolled] = useState(false);
+
+  // Add scroll event listener
+  useEffect(() => {
+    const handleScroll = () => {
+      const isScrolled = window.scrollY > 10;
+      if (isScrolled !== scrolled) {
+        setScrolled(isScrolled);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [scrolled]);
+
   return (
-    <nav className="bg-white shadow-md">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      scrolled ? 'bg-white shadow-md' : 'bg-white shadow-sm'
+    }`}>
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className={`flex justify-between items-center transition-all duration-300 ${
+          scrolled ? 'h-14' : 'h-16'
+        }`}>
           {/* Logo and brand - links to landing page */}
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <img
                 src="/logo192.png"
                 alt="Fly Fitness Zone"
-                className="h-8 w-auto mr-2"
+                className={`w-auto mr-2 transition-all duration-300 ${
+                  scrolled ? 'h-7' : 'h-8'
+                }`}
               />
-              <span className="text-orange-500 font-bold text-xl">Fly Fitness Zone</span>
+              <span className={`text-orange-500 font-bold transition-all duration-300 ${
+                scrolled ? 'text-lg' : 'text-xl'
+              }`}>Fly Fitness Zone</span>
             </Link>
           </div>
 

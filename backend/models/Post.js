@@ -46,16 +46,20 @@ const PostSchema = new mongoose.Schema({
         ref: 'User'
     }],
     comments: [CommentSchema],
+    featured: {
+        type: Boolean,
+        default: false
+    },
     createdAt: {
         type: Date,
         default: Date.now
     },
-    // Posts will automatically be deleted after 36 hours
+    // Posts will automatically be deleted after 24 hours
     expiresAt: {
         type: Date,
         default: function() {
             const now = new Date();
-            return new Date(now.getTime() + 36 * 60 * 60 * 1000); // 36 hours in milliseconds
+            return new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours in milliseconds
         },
         index: { expires: 0 } // This will automatically delete documents when expiresAt is reached
     }

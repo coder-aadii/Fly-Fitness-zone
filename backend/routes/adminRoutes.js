@@ -1,96 +1,62 @@
 // routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
-const User = require('../models/User');
+const adminController = require('../controllers/adminController');
 const adminAuth = require('../middleware/adminAuth');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
-// Get admin profile
-// GET /api/admin/profile
-router.get('/profile', adminAuth, async (req, res) => {
-    try {
-        // Special handling for the admin user which doesn't exist in the database
-        if (req.userId === 'admin-id') {
-            return res.json({
-                _id: 'admin-id',
-                name: 'Admin',
-                email: process.env.ADMIN_EMAIL || 'admin@flyfitness.com',
-                role: 'admin'
-            });
+// Configure multer for temporary file storage
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        const tempDir = path.join(__dirname, '../temp');
+        // Create directory if it doesn't exist
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
         }
-        
-        // For regular admin users from the database
-        const admin = await User.findById(req.userId).select('-password');
-        
-        if (!admin) {
-            return res.status(404).json({ message: 'Admin not found' });
-        }
-        
-        res.json(admin);
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+        cb(null, tempDir);
+    },
+    filename: function(req, file, cb) {
+        // Create unique filename with original extension
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, 'temp-' + uniqueSuffix + ext);
     }
 });
 
-// Get all users
-// GET /api/admin/users
-router.get('/users', adminAuth, async (req, res) => {
-    try {
-        const users = await User.find({ role: 'user' }).select('-password');
-        
-        // If no users exist yet, return an empty array
-        if (users.length === 0) {
-            return res.json([]);
-        }
-        
-        // Transform user data to match expected format in frontend
-        const formattedUsers = users.map(user => ({
-            id: user._id,
-            name: user.name,
-            email: user.email,
-            status: user.isVerified ? 'Active' : 'Pending',
-            joiningDate: user.joiningDate || user.createdAt,
-            profileComplete: Boolean(user.weight && user.height && user.gender)
-        }));
-        
-        res.json(formattedUsers);
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
+// File filter to only allow image and video files
+const fileFilter = (req, file, cb) => {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('video/')) {
+        cb(null, true);
+    } else {
+        cb(new Error('Only image and video files are allowed!'), false);
+    }
+};
+
+const upload = multer({ 
+    storage: storage,
+    fileFilter: fileFilter,
+    limits: {
+        fileSize: 10 * 1024 * 1024 // 10MB limit
     }
 });
 
-// Get admin dashboard stats
-// GET /api/admin/stats
-router.get('/stats', adminAuth, async (req, res) => {
-    try {
-        const totalUsers = await User.countDocuments({ role: 'user' });
-        const verifiedUsers = await User.countDocuments({ role: 'user', isVerified: true });
-        const unverifiedUsers = await User.countDocuments({ role: 'user', isVerified: false });
-        
-        // Return mock stats if no users exist yet
-        if (totalUsers === 0) {
-            return res.json({
-                totalUsers: 0,
-                activeUsers: 0,
-                pendingPayments: 0,
-                totalRevenue: 0,
-                newUsersLast30Days: 0,
-                pendingVerification: 0,
-                usersWithCompleteProfile: 0
-            });
-        }
-        
-        res.json({
-            totalUsers,
-            activeUsers: verifiedUsers,
-            pendingPayments: 0, // Mock data
-            totalRevenue: 0, // Mock data
-            newUsersLast30Days: totalUsers, // Assuming all users are new
-            pendingVerification: unverifiedUsers,
-            usersWithCompleteProfile: Math.floor(verifiedUsers * 0.7) // Mock data
-        });
-    } catch (err) {
-        res.status(500).json({ message: 'Server error', error: err.message });
-    }
-});
+// Admin Profile
+router.get('/profile', adminAuth, adminController.getAdminProfile);
+
+// User Management
+router.get('/users', adminAuth, adminController.getAllUsers);
+router.put('/users/:id/suspend', adminAuth, adminController.suspendUser);
+router.put('/users/:id/unsuspend', adminAuth, adminController.unsuspendUser);
+router.delete('/users/:id', adminAuth, adminController.deleteUser);
+
+// Dashboard Stats
+router.get('/stats', adminAuth, adminController.getAdminStats);
+
+// Post Management
+router.get('/posts', adminAuth, adminController.getAllPosts);
+router.put('/posts/:id/feature', adminAuth, adminController.toggleFeaturedPost);
+router.delete('/posts/:id', adminAuth, adminController.deletePost);
 
 module.exports = router;

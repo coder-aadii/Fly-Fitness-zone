@@ -1,13 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import FeedNavbar from './components/FeedNavbar';
+import FeedLayout from './components/FeedLayout';
 import CreatePost from './components/CreatePost';
 import PostsList from './components/PostsList';
-import Sidebar from './components/Sidebar';
 import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
 import { mockPosts } from './mockData';
 import { checkAuth, handleApiError } from '../utils/errorHandler';
+
+// Utility function to filter out expired posts
+const filterExpiredPosts = (posts) => {
+  const now = new Date();
+  return posts.filter(post => {
+    // Check if post has expiresAt field
+    if (!post.expiresAt) {
+      // If no expiresAt field, calculate it based on createdAt (24 hours later)
+      const createdAt = new Date(post.createdAt);
+      const expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+      return now < expiresAt;
+    }
+    
+    // If post has expiresAt field, check if it's expired
+    return now < new Date(post.expiresAt);
+  });
+};
 
 const FeedPage = () => {
   const [user, setUser] = useState(null);
@@ -15,6 +31,16 @@ const FeedPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  // Periodically check for expired posts (every minute)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Filter out any posts that have expired while user is viewing the feed
+      setPosts(prevPosts => filterExpiredPosts(prevPosts));
+    }, 60000); // Check every minute
+    
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -73,7 +99,10 @@ const FeedPage = () => {
           if (response.status === 404) {
             // If the API endpoint doesn't exist yet, use mock data
             console.log('Posts API not found, using mock data');
-            setPosts(mockPosts);
+            
+            // Filter out expired mock posts
+            const filteredMockPosts = filterExpiredPosts(mockPosts);
+            setPosts(filteredMockPosts);
             setLoading(false);
             return;
           } else if (response.status === 503) {
@@ -84,12 +113,18 @@ const FeedPage = () => {
         }
 
         const data = await response.json();
-        setPosts(data.posts || []);
+        
+        // Filter out expired posts
+        const filteredPosts = filterExpiredPosts(data.posts || []);
+        setPosts(filteredPosts);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching posts:', err);
         // Fallback to mock data if API fails
-        setPosts(mockPosts);
+        
+        // Filter out expired mock posts
+        const filteredMockPosts = filterExpiredPosts(mockPosts);
+        setPosts(filteredMockPosts);
         
         // Only show error page for non-404 errors
         if (err.message !== 'Failed to fetch posts') {
@@ -106,6 +141,13 @@ const FeedPage = () => {
   }, [navigate]);
 
   const handleCreatePost = (newPost) => {
+    // Make sure the new post has an expiresAt field
+    if (!newPost.expiresAt) {
+      // If no expiresAt field, calculate it based on createdAt (24 hours later)
+      const createdAt = new Date(newPost.createdAt);
+      newPost.expiresAt = new Date(createdAt.getTime() + 24 * 60 * 60 * 1000);
+    }
+    
     // Add the new post to the beginning of the posts array
     setPosts([newPost, ...posts]);
   };
@@ -133,25 +175,12 @@ const FeedPage = () => {
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen">
-      <FeedNavbar user={user} />
-      <div className="container mx-auto px-4 py-6 max-w-6xl">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Sidebar - visible on large screens */}
-          <div className="hidden lg:block lg:col-span-1">
-            <Sidebar user={user} />
-          </div>
-          
-          {/* Main content */}
-          <div className="lg:col-span-3">
-            <CreatePost user={user} onPostCreated={handleCreatePost} />
-            <div className="mt-6">
-              <PostsList posts={posts} currentUser={user} />
-            </div>
-          </div>
-        </div>
+    <FeedLayout>
+      <CreatePost user={user} onPostCreated={handleCreatePost} />
+      <div className="mt-6">
+        <PostsList posts={posts} currentUser={user} />
       </div>
-    </div>
+    </FeedLayout>
   );
 };
 
