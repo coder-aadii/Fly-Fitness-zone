@@ -81,9 +81,9 @@ const Footer = () => {
                         <li className="flex items-start">
                             <FaMapMarkerAlt className="mr-3 text-orange-500 mt-1" />
                             <span>
-                                Dudhtlai, in front of Anaaj Mandi,<br />
+                                Dudhtlai, in front of Phool Mandi,<br />
                                 Above Mama Road Lines,<br />
-                                Indore-Gate, Ujjain, Madhya Pradesh 456001
+                                Indore-Gate, Ujjain, M.P. (456001)
                             </span>
                         </li>
                         <li className="flex items-start">

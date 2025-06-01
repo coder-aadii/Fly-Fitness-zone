@@ -4,6 +4,7 @@ import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 import { FaUser, FaLock, FaEnvelope, FaCamera, FaCheck, FaExclamationTriangle } from 'react-icons/fa';
 import Loader from '../components/Loader';
 import { ENDPOINTS, getImageUrl } from '../config';
+import { useAuth } from '../context/AuthContext';
 
 const UserSettings = () => {
     const [user, setUser] = useState(null);
@@ -31,6 +32,9 @@ const UserSettings = () => {
     const [emailLoading, setEmailLoading] = useState(false);
     const fileInputRef = useRef(null);
     const navigate = useNavigate();
+    
+    // Use the auth context
+    const { userData: authUser, updateUserData } = useAuth();
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -66,6 +70,10 @@ const UserSettings = () => {
                 if (userData.profileImage) {
                     // Use the helper function to get the full image URL
                     setImagePreview(getImageUrl(userData.profileImage));
+                } else if (authUser && authUser.profileImage) {
+                    // Use profile image from auth context if available
+                    setImagePreview(getImageUrl(authUser.profileImage));
+                    setUser(prev => ({ ...prev, profileImage: authUser.profileImage }));
                 }
             } catch (err) {
                 setError(err.message);
@@ -75,7 +83,7 @@ const UserSettings = () => {
         };
 
         fetchUserData();
-    }, [navigate]);
+    }, [navigate, authUser]);
 
     const handleTabChange = (tab) => {
         setActiveTab(tab);
@@ -136,6 +144,9 @@ const UserSettings = () => {
             
             // Update the image preview with the full URL
             setImagePreview(getImageUrl(data.profileImage));
+            
+            // Update the userData in the auth context
+            updateUserData({ profileImage: data.profileImage });
             
             setUploadStatus({ type: 'success', message: 'Profile image updated successfully' });
             

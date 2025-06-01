@@ -76,7 +76,7 @@ exports.login = async (req, res) => {
         
         // Get admin credentials from environment variables
         const adminEmail = process.env.ADMIN_EMAIL || 'admin@flyfitness.com';
-        const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+        const adminPassword = process.env.ADMIN_PASSWORD || 'Coxe@1234';
 
         // Check if login is for admin - use strict comparison and trim inputs
         const trimmedEmail = email.trim().toLowerCase();
@@ -135,14 +135,15 @@ exports.login = async (req, res) => {
             { expiresIn: '1d' }
         );
 
-        // Return success response
+        // Return success response with profile image
         res.status(200).json({
             token,
             user: {
                 id: user._id,
                 name: user.name,
                 email: user.email,
-                role: user.role
+                role: user.role,
+                profileImage: user.profileImage
             }
         });
     } catch (err) {

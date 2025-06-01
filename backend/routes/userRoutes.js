@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { uploadToCloudinary, deleteFromCloudinary } = require('../utils/cloudinaryUpload');
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -123,25 +124,35 @@ router.post('/profile-image', auth, upload.single('profileImage'), async (req, r
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // If user already has a profile image, delete the old one
-        if (user.profileImage) {
-            const oldImagePath = path.join(__dirname, '..', user.profileImage.replace(/^\//, ''));
-            if (fs.existsSync(oldImagePath)) {
-                fs.unlinkSync(oldImagePath);
+        // If user already has a profile image on Cloudinary, delete it
+        if (user.cloudinaryId) {
+            try {
+                await deleteFromCloudinary(user.cloudinaryId);
+            } catch (deleteError) {
+                console.error('Error deleting old profile image from Cloudinary:', deleteError);
+                // Continue with upload even if deletion fails
             }
         }
 
-        // Set the new profile image path
-        const imageUrl = `/uploads/${req.file.filename}`;
-        user.profileImage = imageUrl;
+        // Upload the new image to Cloudinary in the 'profiles' folder
+        const cloudinaryResult = await uploadToCloudinary(req.file.path, 'profiles');
+        
+        // Update user with Cloudinary data
+        user.profileImage = cloudinaryResult.url;
+        user.cloudinaryId = cloudinaryResult.publicId;
         
         await user.save();
         
         res.json({ 
             message: 'Profile image uploaded successfully',
-            profileImage: imageUrl
+            profileImage: user.profileImage
         });
     } catch (err) {
+        // If there's an error and the file exists, delete it
+        if (req.file && fs.existsSync(req.file.path)) {
+            fs.unlinkSync(req.file.path);
+        }
+        
         console.error('Error uploading profile image:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }

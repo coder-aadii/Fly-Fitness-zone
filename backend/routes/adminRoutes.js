@@ -8,6 +8,17 @@ const adminAuth = require('../middleware/adminAuth');
 // GET /api/admin/profile
 router.get('/profile', adminAuth, async (req, res) => {
     try {
+        // Special handling for the admin user which doesn't exist in the database
+        if (req.userId === 'admin-id') {
+            return res.json({
+                _id: 'admin-id',
+                name: 'Admin',
+                email: process.env.ADMIN_EMAIL || 'admin@flyfitness.com',
+                role: 'admin'
+            });
+        }
+        
+        // For regular admin users from the database
         const admin = await User.findById(req.userId).select('-password');
         
         if (!admin) {
@@ -25,7 +36,23 @@ router.get('/profile', adminAuth, async (req, res) => {
 router.get('/users', adminAuth, async (req, res) => {
     try {
         const users = await User.find({ role: 'user' }).select('-password');
-        res.json(users);
+        
+        // If no users exist yet, return an empty array
+        if (users.length === 0) {
+            return res.json([]);
+        }
+        
+        // Transform user data to match expected format in frontend
+        const formattedUsers = users.map(user => ({
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            status: user.isVerified ? 'Active' : 'Pending',
+            joiningDate: user.joiningDate || user.createdAt,
+            profileComplete: Boolean(user.weight && user.height && user.gender)
+        }));
+        
+        res.json(formattedUsers);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
     }
@@ -39,10 +66,27 @@ router.get('/stats', adminAuth, async (req, res) => {
         const verifiedUsers = await User.countDocuments({ role: 'user', isVerified: true });
         const unverifiedUsers = await User.countDocuments({ role: 'user', isVerified: false });
         
+        // Return mock stats if no users exist yet
+        if (totalUsers === 0) {
+            return res.json({
+                totalUsers: 0,
+                activeUsers: 0,
+                pendingPayments: 0,
+                totalRevenue: 0,
+                newUsersLast30Days: 0,
+                pendingVerification: 0,
+                usersWithCompleteProfile: 0
+            });
+        }
+        
         res.json({
             totalUsers,
-            verifiedUsers,
-            unverifiedUsers
+            activeUsers: verifiedUsers,
+            pendingPayments: 0, // Mock data
+            totalRevenue: 0, // Mock data
+            newUsersLast30Days: totalUsers, // Assuming all users are new
+            pendingVerification: unverifiedUsers,
+            usersWithCompleteProfile: Math.floor(verifiedUsers * 0.7) // Mock data
         });
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });

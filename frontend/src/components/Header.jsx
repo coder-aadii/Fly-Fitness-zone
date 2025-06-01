@@ -1,11 +1,46 @@
-import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react'; // You can also use Heroicons
+import React, { useState, useEffect } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Menu, X, LogOut } from 'lucide-react'; // You can also use Heroicons
 import logo from '../assets/images/logo_img.png'; // Replace with actual logo path
+import { getImageUrl } from '../config'; // Import the helper function
+import { useAuth } from '../context/AuthContext'; // Import the auth context
 
 const Header = () => {
     const [menuOpen, setMenuOpen] = useState(false);
+    const [showUserMenu, setShowUserMenu] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+    const userMenuRef = React.useRef(null);
+    
+    // Use the auth context
+    const { isLoggedIn, userData, logout } = useAuth();
+    
+    // No need for login status checks anymore since we're using AuthContext
+    
+    // Handle clicks outside of user menu to close it
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (userMenuRef.current && !userMenuRef.current.contains(event.target)) {
+                setShowUserMenu(false);
+            }
+        };
+        
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, []);
+    
+    const handleLogout = () => {
+        // Close the user menu
+        setShowUserMenu(false);
+        
+        // Use the logout function from AuthContext
+        logout();
+        
+        // Navigate to home page
+        navigate('/');
+    };
 
     const handleAnchorClick = (e, anchor) => {
         e.preventDefault();
@@ -39,7 +74,55 @@ const Header = () => {
                         <a href="#classes" onClick={(e) => handleAnchorClick(e, "#classes")} className="hover:text-red-600 transition">Classes</a>
                         <a href="#trainers" onClick={(e) => handleAnchorClick(e, "#trainers")} className="hover:text-red-600 transition">Trainers</a>
                         <a href="#contact" onClick={(e) => handleAnchorClick(e, "#contact")} className="hover:text-red-600 transition">Contact Us</a>
-                        <Link to="/login" className="hover:text-red-600 transition">Login</Link>
+                        
+                        {isLoggedIn ? (
+                            <div className="relative" ref={userMenuRef}>
+                                <div className="flex items-center space-x-2">
+                                    <Link to="/feed" className="hover:text-red-600 transition">News Feed</Link>
+                                    <button 
+                                        onClick={() => setShowUserMenu(!showUserMenu)}
+                                        className="hover:text-red-600 transition flex items-center"
+                                    >
+                                        {userData && userData.profileImage ? (
+                                            <img 
+                                                src={getImageUrl(userData.profileImage)}
+                                                alt="Profile" 
+                                                className="h-6 w-6 rounded-full object-cover mr-1"
+                                            />
+                                        ) : null}
+                                        <span className="text-sm font-medium">▼</span>
+                                    </button>
+                                </div>
+                                
+                                {showUserMenu && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1">
+                                        <Link 
+                                            to="/UserDashboard" 
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={() => setShowUserMenu(false)}
+                                        >
+                                            Dashboard
+                                        </Link>
+                                        <Link 
+                                            to="/UserSettings" 
+                                            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                            onClick={() => setShowUserMenu(false)}
+                                        >
+                                            Settings
+                                        </Link>
+                                        <button
+                                            onClick={handleLogout}
+                                            className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                                        >
+                                            <LogOut className="inline mr-2 h-4 w-4" />
+                                            Sign out
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            <Link to="/login" className="hover:text-red-600 transition">Login</Link>
+                        )}
                     </nav>
 
                     {/* Mobile Menu Button */}
@@ -60,7 +143,25 @@ const Header = () => {
                     <a href="#classes" onClick={(e) => handleAnchorClick(e, "#classes")} className="block py-2 text-gray-700 hover:text-red-600">Classes</a>
                     <a href="#trainers" onClick={(e) => handleAnchorClick(e, "#trainers")} className="block py-2 text-gray-700 hover:text-red-600">Trainers</a>
                     <a href="#contact" onClick={(e) => handleAnchorClick(e, "#contact")} className="block py-2 text-gray-700 hover:text-red-600">Contact Us</a>
-                    <Link to="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Login</Link>
+                    
+                    {isLoggedIn ? (
+                        <>
+                            <Link to="/feed" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">News Feed</Link>
+                            <Link to="/UserDashboard" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Dashboard</Link>
+                            <Link to="/UserSettings" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Settings</Link>
+                            <button 
+                                onClick={() => {
+                                    handleLogout();
+                                    setMenuOpen(false);
+                                }} 
+                                className="block w-full text-left py-2 text-gray-700 hover:text-red-600"
+                            >
+                                Sign out
+                            </button>
+                        </>
+                    ) : (
+                        <Link to="/login" onClick={() => setMenuOpen(false)} className="block py-2 text-gray-700 hover:text-red-600">Login</Link>
+                    )}
                 </div>
             )}
         </header>

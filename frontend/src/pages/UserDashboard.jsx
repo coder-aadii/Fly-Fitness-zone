@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import DashboardNavbar from '../components/dashboard/DashboardNavbar';
 import WelcomeBanner from '../components/dashboard/WelcomeBanner';
 import UpdateProfileModal from '../components/dashboard/UpdateProfileModal';
 import ProfileCard from '../components/dashboard/ProfileCard';
@@ -8,6 +7,7 @@ import FeesDueCard from '../components/dashboard/FeesDueCard';
 import ProgressTracker from '../components/dashboard/ProgressTracker';
 import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
+import FeedNavbar from '../feed/components/FeedNavbar';
 
 const UserDashboard = () => {
     const [user, setUser] = useState(null);
@@ -45,11 +45,15 @@ const UserDashboard = () => {
 
                 const userData = await response.json();
                 
+                // Check localStorage for profile image if not in API response
+                const localUserData = JSON.parse(localStorage.getItem('userData') || '{}');
+                
                 // Transform the data to match the expected format
                 const formattedUser = {
                     name: userData.name || 'User',
                     // Include profileImage in the user object for the navbar
-                    profileImage: userData.profileImage || null,
+                    // Use profile image from API response or localStorage
+                    profileImage: userData.profileImage || localUserData.profileImage || null,
                     profile: {
                         weight: userData.weight || 0,
                         height: userData.height || 0,
@@ -66,6 +70,13 @@ const UserDashboard = () => {
                 };
 
                 setUser(formattedUser);
+                
+                // Update userData in localStorage with the latest profile image
+                if (userData.profileImage) {
+                    const localUserData = JSON.parse(localStorage.getItem('userData') || '{}');
+                    localUserData.profileImage = userData.profileImage;
+                    localStorage.setItem('userData', JSON.stringify(localUserData));
+                }
             } catch (err) {
                 setError(err.message);
             } finally {
@@ -146,7 +157,7 @@ const UserDashboard = () => {
 
     return (
         <>
-            <DashboardNavbar user={user} />
+            <FeedNavbar user={user} />
             <div className="max-w-5xl mx-auto p-6">
                 <WelcomeBanner userName={user.name} onUpdateClick={handleUpdateClick} />
                 <UpdateProfileModal

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { FaUsers, FaCalendarAlt, FaMoneyBillWave, FaSignOutAlt } from 'react-icons/fa';
 import { ENDPOINTS } from '../config';
 
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
                     const decodedToken = JSON.parse(jsonPayload);
                     
                     if (decodedToken.role !== 'admin') {
-                        navigate('/UserDashboard');
+                        navigate('/unauthorized');
                         return;
                     }
                 } catch (error) {
@@ -43,66 +43,91 @@ const AdminDashboard = () => {
                 }
 
                 // Fetch admin data
-                const response = await fetch(ENDPOINTS.ADMIN_PROFILE, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
+                try {
+                    const response = await fetch(ENDPOINTS.ADMIN_PROFILE, {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    });
 
-                if (!response.ok) {
-                    if (response.status === 401) {
-                        localStorage.removeItem('token');
-                        navigate('/login');
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            localStorage.removeItem('token');
+                            navigate('/login');
+                            return;
+                        }
+                        throw new Error('Failed to fetch admin data');
+                    }
+
+                    const userData = await response.json();
+                    
+                    // Check if user is admin
+                    if (!userData.role || userData.role !== 'admin') {
+                        navigate('/unauthorized');
                         return;
                     }
-                    throw new Error('Failed to fetch admin data');
-                }
-
-                const userData = await response.json();
-                
-                // Check if user is admin
-                if (!userData.role || userData.role !== 'admin') {
-                    navigate('/UserDashboard');
+                } catch (error) {
+                    console.error('Error fetching admin profile:', error);
+                    setError('Failed to verify admin status. Please try logging in again.');
+                    setLoading(false);
                     return;
                 }
 
-                // Fetch stats from backend
+                // Fetch stats and users in parallel
                 try {
-                    const statsResponse = await fetch(ENDPOINTS.ADMIN_STATS, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
+                    const [statsResponse, usersResponse] = await Promise.allSettled([
+                        fetch(ENDPOINTS.ADMIN_STATS, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        }),
+                        fetch(ENDPOINTS.ADMIN_USERS, {
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            }
+                        })
+                    ]);
                     
-                    if (statsResponse.ok) {
-                        const statsData = await statsResponse.json();
+                    // Handle stats response
+                    if (statsResponse.status === 'fulfilled' && statsResponse.value.ok) {
+                        const statsData = await statsResponse.value.json();
                         setStats(statsData);
                     } else {
-                        setError('Failed to fetch statistics');
+                        console.warn('Failed to fetch statistics');
+                        // Use default stats instead of showing an error
+                        setStats({
+                            totalUsers: 0,
+                            activeUsers: 0,
+                            pendingPayments: 0,
+                            totalRevenue: 0,
+                            newUsersLast30Days: 0,
+                            pendingVerification: 0,
+                            usersWithCompleteProfile: 0
+                        });
                     }
-                } catch (error) {
-                    setError('Error connecting to server');
-                }
-                
-                // Fetch users from backend
-                try {
-                    const usersResponse = await fetch(ENDPOINTS.ADMIN_USERS, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
-                        }
-                    });
                     
-                    if (usersResponse.ok) {
-                        const usersData = await usersResponse.json();
+                    // Handle users response
+                    if (usersResponse.status === 'fulfilled' && usersResponse.value.ok) {
+                        const usersData = await usersResponse.value.json();
                         setUsers(usersData);
                     } else {
-                        setError('Failed to fetch user data');
+                        console.warn('Failed to fetch user data');
+                        // Use empty array instead of showing an error
+                        setUsers([]);
                     }
                 } catch (error) {
-                    setError('Error connecting to server');
+                    console.error('Error fetching admin data:', error);
+                    // Don't set error, just use default values
+                    setStats({
+                        totalUsers: 0,
+                        activeUsers: 0,
+                        pendingPayments: 0,
+                        totalRevenue: 0
+                    });
+                    setUsers([]);
+                } finally {
+                    setLoading(false);
                 }
-
-                setLoading(false);
             } catch (err) {
                 setError(err.message);
                 setLoading(false);
@@ -144,14 +169,25 @@ const AdminDashboard = () => {
             {/* Admin Header */}
             <header className="bg-orange-600 text-white shadow-md">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
-                    <h1 className="text-2xl font-bold">Fly Fitness Zone Admin</h1>
-                    <button 
-                        onClick={handleLogout}
-                        className="flex items-center bg-orange-700 hover:bg-orange-800 px-4 py-2 rounded"
-                    >
-                        <FaSignOutAlt className="mr-2" />
-                        Logout
-                    </button>
+                    <div className="flex items-center">
+                        <Link to="/admin-dashboard" className="flex items-center mr-6">
+                            <img 
+                                src="/logo192.png" 
+                                alt="Fly Fitness Zone" 
+                                className="h-8 w-auto mr-2"
+                            />
+                            <h1 className="text-2xl font-bold">Fly Fitness Zone Admin</h1>
+                        </Link>
+                    </div>
+                    <div className="flex items-center space-x-4">
+                        <button 
+                            onClick={handleLogout}
+                            className="flex items-center bg-orange-700 hover:bg-orange-800 px-4 py-2 rounded"
+                        >
+                            <FaSignOutAlt className="mr-2" />
+                            Logout
+                        </button>
+                    </div>
                 </div>
             </header>
 

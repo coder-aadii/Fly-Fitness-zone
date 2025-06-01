@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import Header from '../components/Header';
 import Loader from '../components/Loader';
 import { ENDPOINTS } from '../config';
+import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
     const [form, setForm] = useState({ email: '', password: '' });
@@ -11,6 +12,7 @@ const Login = () => {
     const [error, setError] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const { login } = useAuth();
 
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -38,13 +40,20 @@ const Login = () => {
                 throw new Error(data.message || 'Login failed');
             }
             
-            // Save JWT token in localStorage
-            localStorage.setItem('token', data.token);
+            // Use the login function from AuthContext
+            login(data.token, {
+                id: data.user.id,
+                name: data.user.name,
+                email: data.user.email,
+                role: data.user.role,
+                profileImage: data.user.profileImage
+            });
 
-            // Redirect to feed or admin dashboard based on role
+            // Redirect to admin dashboard or news feed based on role
             if (data.user && data.user.role === 'admin') {
                 navigate('/admin-dashboard');
             } else {
+                // Redirect to news feed page directly
                 navigate('/feed');
             }
         } catch (err) {

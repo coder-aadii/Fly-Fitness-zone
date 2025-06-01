@@ -48,6 +48,7 @@ const DashboardNavbar = ({ user }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userData'); // Also remove user data
     window.location.href = '/login';
   };
 
@@ -71,9 +72,9 @@ const DashboardNavbar = ({ user }) => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and brand */}
+          {/* Logo and brand - links to landing page */}
           <div className="flex items-center">
-            <Link to="/feed" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img 
                 src="/logo192.png" 
                 alt="Fly Fitness Zone" 
@@ -97,8 +98,11 @@ const DashboardNavbar = ({ user }) => {
 
           {/* Navigation and profile - hidden on mobile */}
           <div className="hidden md:flex items-center">
-            <Link to="/feed" className="text-gray-700 hover:text-orange-500 px-3 py-2">
+            <Link to="/" className="text-gray-700 hover:text-orange-500 px-3 py-2" title="Go to Home Page">
               <FaHome className="text-xl" />
+            </Link>
+            <Link to="/feed" className="text-gray-700 hover:text-orange-500 px-3 py-2 ml-2">
+              News Feed
             </Link>
             
             {/* Notifications */}
@@ -169,11 +173,26 @@ const DashboardNavbar = ({ user }) => {
                       className="h-full w-full object-cover"
                     />
                   ) : (
+                    // Check localStorage for profile image if not in user prop
+                    (() => {
+                      const userData = JSON.parse(localStorage.getItem('userData') || '{}');
+                      if (userData.profileImage) {
+                        return (
+                          <img 
+                            src={getImageUrl(userData.profileImage)} 
+                            alt={user?.name || userData.name} 
+                            className="h-full w-full object-cover"
+                          />
+                        );
+                      }
+                      return (
                     <div className="h-full w-full bg-orange-200 flex items-center justify-center">
                       <span className="text-orange-500 font-semibold">
                         {user?.name?.charAt(0) || 'U'}
                       </span>
                     </div>
+                      );
+                    })()
                   )}
                 </div>
               </button>
@@ -243,11 +262,18 @@ const DashboardNavbar = ({ user }) => {
             </div>
             
             <Link 
-              to="/feed" 
+              to="/" 
               className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50 rounded-md"
             >
               <FaHome className="inline mr-2" />
-              Home
+              Home Page
+            </Link>
+            
+            <Link 
+              to="/feed" 
+              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50 rounded-md"
+            >
+              News Feed
             </Link>
             
             <Link 

@@ -39,7 +39,7 @@ const Register = () => {
             }
 
             // Registration successful, now show OTP input
-            setSuccessMsg('Registration successful! Please check your email for OTP.');
+            setSuccessMsg('Registration successful! Please check your email for OTP and verification link.');
             setShowOtpInput(true);
         } catch (err) {
             setError(err.message);
@@ -164,35 +164,49 @@ const Register = () => {
                     )}
 
                     {showOtpInput && (
-                        <form onSubmit={handleOtpSubmit} className="space-y-6">
-                            <div>
-                                <label className="block text-gray-700 mb-2">Enter OTP</label>
-                                <input
-                                    type="text"
-                                    name="otp"
-                                    value={otp}
-                                    onChange={(e) => setOtp(e.target.value)}
-                                    required
-                                    maxLength={6}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none"
-                                    placeholder="6-digit OTP"
-                                />
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
-                                disabled={isOtpLoading}
-                            >
-                                {isOtpLoading ? (
-                                    <span className="flex items-center justify-center">
-                                        <span className="w-5 h-5 mr-2">
-                                            <Loader size="small" />
+                        <div className="space-y-6">
+                            <form onSubmit={handleOtpSubmit} className="space-y-6">
+                                <div>
+                                    <label className="block text-gray-700 mb-2">Enter OTP</label>
+                                    <input
+                                        type="text"
+                                        name="otp"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        required
+                                        maxLength={6}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 outline-none"
+                                        placeholder="6-digit OTP"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    className="w-full bg-orange-500 text-white py-2 rounded-lg hover:bg-orange-600 transition"
+                                    disabled={isOtpLoading}
+                                >
+                                    {isOtpLoading ? (
+                                        <span className="flex items-center justify-center">
+                                            <span className="w-5 h-5 mr-2">
+                                                <Loader size="small" />
+                                            </span>
+                                            <span>Verifying...</span>
                                         </span>
-                                        <span>Verifying...</span>
-                                    </span>
-                                ) : 'Verify OTP'}
-                            </button>
-                        </form>
+                                    ) : 'Verify OTP'}
+                                </button>
+                            </form>
+                            
+                            <div className="text-center pt-2 border-t border-gray-200">
+                                <p className="text-sm text-gray-600 mb-2">
+                                    You can also verify using the link sent to your email.
+                                </p>
+                                <a 
+                                    href={`/verify-otp?email=${encodeURIComponent(form.email)}`}
+                                    className="text-orange-600 font-medium hover:underline text-sm"
+                                >
+                                    Go to verification page
+                                </a>
+                            </div>
+                        </div>
                     )}
 
                     <p className="text-sm text-gray-600 mt-4 text-center">

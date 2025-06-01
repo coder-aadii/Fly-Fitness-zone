@@ -105,6 +105,10 @@ const UserSchema = new mongoose.Schema({
     },
     profileImage: {
         type: String
+    },
+    // Cloudinary fields for profile image
+    cloudinaryId: {
+        type: String
     }
 }, {
     timestamps: true

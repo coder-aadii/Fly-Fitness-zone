@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
 import GlobalLoader from './components/GlobalLoader';
+import { AuthProvider } from './context/AuthContext';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -9,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
+import VerifyOTP from './pages/VerifyOTP';
 import Album from './pages/Album';
 import UserDashboard from './pages/UserDashboard';
 import UserSettings from './pages/UserSettings';
@@ -34,14 +36,16 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
         {/* Landing Page Route */}
         <Route path="/" element={<LandingPage />} />
 
         {/* Auth Routes */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/verify-otp" element={<VerifyOTP />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -64,8 +68,9 @@ function App() {
         
         {/* Catch-all route for 404 errors */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
 

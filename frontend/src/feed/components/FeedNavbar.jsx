@@ -71,9 +71,9 @@ const FeedNavbar = ({ user }) => {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and brand */}
+          {/* Logo and brand - links to landing page */}
           <div className="flex items-center">
-            <Link to="/feed" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <img 
                 src="/logo192.png" 
                 alt="Fly Fitness Zone" 
@@ -97,7 +97,7 @@ const FeedNavbar = ({ user }) => {
 
           {/* Navigation and profile - hidden on mobile */}
           <div className="hidden md:flex items-center">
-            <Link to="/feed" className="text-gray-700 hover:text-orange-500 px-3 py-2">
+            <Link to="/feed" className="text-gray-700 hover:text-orange-500 px-3 py-2" title="Go to Home Page">
               <FaHome className="text-xl" />
             </Link>
             
@@ -243,11 +243,18 @@ const FeedNavbar = ({ user }) => {
             </div>
             
             <Link 
-              to="/feed" 
+              to="/" 
               className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50 rounded-md"
             >
               <FaHome className="inline mr-2" />
-              Home
+              Home Page
+            </Link>
+            
+            <Link 
+              to="/feed" 
+              className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50 rounded-md"
+            >
+              News Feed
             </Link>
             
             <Link 
