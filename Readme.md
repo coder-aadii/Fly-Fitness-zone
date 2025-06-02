@@ -51,7 +51,11 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **Profile Management**: Comprehensive user profiles with fitness metrics
 
 <div align="center">
-  <img src="https://i.ibb.co/Jt8MhQV/authentication.png" alt="Authentication Screenshot" width="700"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748859723/Screenshot_2025-06-02_154649_pufg47.png" alt="Authentication Screenshot" width="700"/>
+</div>
+
+<div align="center">
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748859724/Screenshot_2025-06-02_154709_riv5s7.png" alt="Authentication Screenshot" width="700"/>
 </div>
 
 ### Member Dashboard
@@ -61,7 +65,7 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **Settings Management**: Update profile information and preferences
 
 <div align="center">
-  <img src="https://i.ibb.co/YXVtszD/dashboard.png" alt="Dashboard Screenshot" width="700"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748859722/Screenshot_2025-06-02_154909_tx5hdx.png" alt="Dashboard Screenshot" width="700"/>
 </div>
 
 ### Social Feed
@@ -71,7 +75,10 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **Temporary Content**: Posts automatically expire after 24 hours
 
 <div align="center">
-  <img src="https://i.ibb.co/Qf7s3JN/social-feed.png" alt="Social Feed Screenshot" width="700"/>
+  <a href="https://res.cloudinary.com/deoegf9on/video/upload/v1748859945/FltFitnessZone_-_Feed_er71td.mp4" target="_blank">
+    <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748859724/Screenshot_2025-06-02_154909_tx5hdx.png" alt="Social Feed Video (Click to Play)" width="700"/>
+    <p>Click to view Social Feed video</p>
+  </a>
 </div>
 
 ### Administrative Capabilities
@@ -87,7 +94,7 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **Testimonials**: Success stories from members
 
 <div align="center">
-  <img src="https://i.ibb.co/VVbfKnS/fitness-resources.png" alt="Fitness Resources Screenshot" width="700"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748859724/Screenshot_2025-06-02_155133_xoc8uc.png" alt="Fitness Resources Screenshot" width="700"/>
 </div>
 
 ### Communication
@@ -131,7 +138,7 @@ Built on the MERN stack (MongoDB, Express.js, React.js, Node.js), the platform o
 - **MongoDB Atlas**: Cloud database service
 
 <div align="center">
-  <img src="https://i.ibb.co/5GCXjzk/tech-stack.png" alt="Technology Stack" width="700"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860254/mern_te7q8k.webp" alt="Technology Stack" width="700"/>
 </div>
 
 ---
@@ -242,7 +249,7 @@ Fly-Fitness-Zone/
 5. Access the application at `http://localhost:3000`
 
 <div align="center">
-  <img src="https://i.ibb.co/Lp2Ydkz/setup.png" alt="Setup Process" width="600"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860384/localhost_zvsbwu.avif" alt="Setup Process" width="600"/>
 </div>
 
 ---
@@ -268,7 +275,7 @@ Administrators have access to all member features plus:
 - Platform configuration options
 
 <div align="center">
-  <img src="https://i.ibb.co/YBnkSWL/roles.png" alt="User Roles" width="600"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860459/user_and_admin_gailv8.jpg" alt="User Roles" width="600"/>
 </div>
 
 ---
@@ -293,7 +300,7 @@ Administrators have access to all member features plus:
 - **Access Controls**: Strict role-based access to sensitive information
 
 <div align="center">
-  <img src="https://i.ibb.co/Jj4LBWL/security.png" alt="Security Features" width="600"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860523/security_x9hwny.png" alt="Security Features" width="600"/>
 </div>
 
 ---
@@ -360,7 +367,7 @@ MongoDB Atlas is used for database hosting:
 3. Update the connection string in your backend environment variables.
 
 <div align="center">
-  <img src="https://i.ibb.co/Qp1Hnwz/deployment.png" alt="Deployment Architecture" width="700"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860624/Architectural-Structure-of-MERN-Stack_dvo7da.png" alt="Deployment Architecture" width="700"/>
 </div>
 
 ---
@@ -378,7 +385,7 @@ MongoDB Atlas is used for database hosting:
 - **Gamification**: Achievement badges and challenges
 
 <div align="center">
-  <img src="https://i.ibb.co/Jj1Yfbw/roadmap.png" alt="Future Roadmap" width="600"/>
+  <img src="https://res.cloudinary.com/deoegf9on/image/upload/v1748860675/istockphoto-691984758-612x612_kxkdss.jpg" alt="Future Roadmap" width="600"/>
 </div>
 
 ---
