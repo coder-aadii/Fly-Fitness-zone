@@ -180,6 +180,9 @@ const FeedNavbar = ({ user }) => {
             <Link to="/feed" className="text-gray-700 hover:text-orange-500 px-3 py-2" title="Go to Home Page">
               <FaHome className="text-xl" />
             </Link>
+            <Link to="/UserDashboard" className="text-gray-700 hover:text-orange-500 px-3 py-2" title="Go to Dashboard">
+              <FaUser className="text-xl" />
+            </Link>
 
             {/* Notifications */}
             <div className="relative" ref={notificationsRef}>
@@ -330,11 +333,7 @@ const FeedNavbar = ({ user }) => {
           <div className="px-2 pt-2 pb-3 space-y-1">
             {/* User profile section */}
             <div className="flex items-center px-3 py-2 border-b border-gray-200 mb-2">
-              <Link 
-                to="/UserDashboard" 
-                className="flex items-center w-full"
-                onClick={() => setShowMobileMenu(false)}
-              >
+              <div className="flex items-center w-full">
                 <div className="h-10 w-10 rounded-full overflow-hidden border-2 border-orange-300 mr-3">
                   {user?.profileImage ? (
                     <img
@@ -354,7 +353,7 @@ const FeedNavbar = ({ user }) => {
                   <p className="font-medium text-gray-800">{user?.name}</p>
                   <p className="text-xs text-gray-500">{user?.email}</p>
                 </div>
-              </Link>
+              </div>
             </div>
 
             {/* Search bar */}
@@ -378,6 +377,15 @@ const FeedNavbar = ({ user }) => {
               >
                 <FaHome className="inline mr-2" />
                 Home Page
+              </Link>
+
+              <Link
+                to="/UserDashboard"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-orange-500 hover:bg-gray-50 rounded-md"
+                onClick={() => setShowMobileMenu(false)}
+              >
+                <FaUser className="inline mr-2" />
+                Dashboard
               </Link>
 
               <Link
